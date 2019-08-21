@@ -1,0 +1,13 @@
+*
+*.a
+*.swp
+*.swo
+!*/
+!*.c
+!*.h
+!*.png
+!Makefile
+!.gitmodules
+!.gitignore
+lib
+cmake-build-debug/*
