@@ -6,7 +6,7 @@
 #    By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/08/21 13:49:23 by vtarasiu          #+#    #+#              #
-#    Updated: 2019/08/21 20:01:04 by vtarasiu         ###   ########.fr        #
+#    Updated: 2019/08/24 15:07:23 by vtarasiu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,29 +16,32 @@ NAME = fractol
 CFLAGS = -Wall -Wextra -Werror \
          -g
 
-LIB_DIR = lib
+LIB_DIR = lib/
 
-PRINTF_DIR = $(LIB_DIR)/printf
+PRINTF_DIR = $(LIB_DIR)printf/
 LIBPRINTF_NAME = libftprintf.a
+PRINTF_PATH = $(PRINTF_DIR)$(LIBPRINTF_NAME)
 
-LIBFT_DIR  = $(LIB_DIR)/libft
+LIBFT_DIR  = $(LIB_DIR)libft/
 LIBFT_NAME = libft.a
+LIBFT_PATH = $(LIBFT_DIR)$(LIBFT_NAME)
 
-LIBPNG_DIR = $(LIB_DIR)/libspng
+LIBPNG_DIR = $(LIB_DIR)libspng/
 LIBPNG_NAME_STATIC  = libspng_static.a
 LIBPNG_NAME_DYNAMIC = libspng.dylib
-
-LIBNAMES = $(LIBPNG_NAME_STATIC) $(LIBFT_NAME) $(LIBPRINTF_NAME)
-STATIC_LIBS = $(addprefix lib/, $(LIBNAMES))
+LIBPNG_PATH = $(LIBPNG_DIR)$(LIBPNG_NAME_STATIC)
 
 FRACTOL_SRC_DIR = src/
-FRACTOL_SRC = main.c
+FRACTOL_SRC = main.c \
+              dispatcher.c \
+              mandelbrot.c
 
 HEADERS = fractals.h \
           fractol_png.h
 
 INCLUDES = -I include -I $(PRINTF_DIR)/include -I $(LIBFT_DIR) -I $(LIBPNG_DIR)
-LIBRARIES = -lmlx -lft -lspng -lftprintf -L$(PRINTF_DIR) -L$(LIBFT_DIR) -L$(LIBPNG_DIR)
+LIBRARIES = -lft -lftprintf -L$(PRINTF_DIR) -L$(LIBFT_DIR) -L$(LIBPNG_DIR) \
+            -lmlx -framework OpenGL -framework AppKit -L/usr/local/lib/
 
 OBJ_DIR = obj/
 OBJ = $(addprefix $(OBJ_DIR), $(FRACTOL_SRC:.c=.o))
@@ -53,10 +56,10 @@ $(NAME): $(OBJ)
 	@echo "    CC $(NAME)"
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJ) -I $(INCLUDE) $(LIBRARIES)
 
-$(OBJ_DIR)%.o: $(FRACTOL_SRC_DIR)%.c | $(STATIC_LIBS)
+$(OBJ_DIR)%.o: $(FRACTOL_SRC_DIR)%.c $(LIBPNG_PATH) $(LIBFT_PATH) $(PRINTF_PATH) #| $(OBJ_DIR)
 	@if ! [ -d $(OBJ_DIR) ] ; then \
-	    mkdir -p $(OBJ_DIR) ; \
-	fi
+        mkdir -p $(OBJ_DIR) ; \
+    fi
 	@echo "    CC $<"
 	@$(CC) $(FLAGS) $(INCLUDES) -o $@ -c $<
 
@@ -90,17 +93,17 @@ ifeq ($(NEEDS_SYNC), true)
 	@echo "cloning complete."
 endif
 
-lib/$(LIBPNG_NAME_STATIC):
-	@echo "cmake $(LIBPNG_DIR)/"
-	@cmake $(LIBPNG_DIR)/ 2>/dev/null
-	@echo "make -C $(LIBPNG_DIR)/"
-	@make -C $(LIBPNG_DIR)/ 2>/dev/null
+$(LIBPNG_PATH):
+	@echo "cmake $(LIBPNG_DIR)"
+	@cmake $(LIBPNG_DIR) 2>/dev/null
+	@echo "make -C $(LIBPNG_DIR)"
+	@make -C $(LIBPNG_DIR) 2>/dev/null
 
-lib/$(LIBPRINTF_NAME):
-	make -C $(LIBFT_DIR)/
+$(LIBFT_PATH):
+	make -C $(LIBFT_DIR)
 
-lib/$(LIBFT_NAME):
-	make -C $(PRINTF_DIR)/
+$(PRINTF_PATH):
+	make -C $(PRINTF_DIR)
 
 clean:
 	/bin/rm -f $(OBJ)
@@ -119,5 +122,5 @@ re: fclean lclean all
 love:
 	@echo "Not all."
 
-.PHONY: all clean fclean re prepare libs
+.PHONY: all clean fclean re libs
 

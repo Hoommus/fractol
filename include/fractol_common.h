@@ -1,30 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   fractol_common.h                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/08/21 14:36:20 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/08/24 17:58:26 by vtarasiu         ###   ########.fr       */
+/*   Created: 2019/08/21 22:09:50 by vtarasiu          #+#    #+#             */
+/*   Updated: 2019/08/21 22:27:31 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "fractol_common.h"
+#ifndef FRACTOL_COMMON_H
+# define FRACTOL_COMMON_H
 
+# include <mlx.h>
+# include <stddef.h>
+# include <unistd.h>
+# include "libft.h"
+# include "ft_printf.h"
 
-void	quit(int sig)
-{
-	exit(sig = 0);
-}
+int					dispatch(const char **argv, void *display);
 
-int		main(int argc, const char **argv)
-{
-	void	*fukken_mlx;
-
-
-	fukken_mlx = mlx_init();
-	signal(SIGINT, &quit);
-	dispatch(argv + 1, fukken_mlx);
-	return 0;
-}
+#endif
