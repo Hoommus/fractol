@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 13:48:42 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/08/24 14:49:20 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/08/25 12:43:38 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,21 @@ typedef uint32_t	(*t_fract_calc)(struct s_fractal *, struct s_rgba_map *, uint32
 
 struct			s_fractal
 {
-	int32_t				step;
 	uint32_t			max_iterations;
-	double				scale;
-	double				zoom;
-
-	float				const_real;
-	float				const_imagener;
 
 	t_fract_calc		calculator;
 
+	struct				s_input
+	{
+		int			mouse_x;
+		int			mouse_y;
+
+		int			winch_x;
+		int			winch_y;
+
+		int			shift_x;
+		int			shift_y;
+	}					input_feedback;
 	struct s_rgba_map	*source;
 };
 

@@ -6,7 +6,7 @@
 #    By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/08/21 13:49:23 by vtarasiu          #+#    #+#              #
-#    Updated: 2019/08/24 15:07:23 by vtarasiu         ###   ########.fr        #
+#    Updated: 2019/08/24 18:37:35 by vtarasiu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ CC = clang
 NAME = fractol
 
 CFLAGS = -Wall -Wextra -Werror \
-         -g
+         -g -O2
 
 LIB_DIR = lib/
 
@@ -39,9 +39,11 @@ FRACTOL_SRC = main.c \
 HEADERS = fractals.h \
           fractol_png.h
 
-INCLUDES = -I include -I $(PRINTF_DIR)/include -I $(LIBFT_DIR) -I $(LIBPNG_DIR)
+INCLUDES = -I include -I $(PRINTF_DIR)/include -I $(LIBFT_DIR) -I $(LIBPNG_DIR) \
+           -I /Library/Frameworks/SDL2.framework/Versions/A/Headers/
 LIBRARIES = -lft -lftprintf -L$(PRINTF_DIR) -L$(LIBFT_DIR) -L$(LIBPNG_DIR) \
-            -lmlx -framework OpenGL -framework AppKit -L/usr/local/lib/
+            -framework OpenGL -framework AppKit -L/usr/local/lib/ \
+            -F /Library/Frameworks -framework SDL2
 
 OBJ_DIR = obj/
 OBJ = $(addprefix $(OBJ_DIR), $(FRACTOL_SRC:.c=.o))
@@ -61,7 +63,7 @@ $(OBJ_DIR)%.o: $(FRACTOL_SRC_DIR)%.c $(LIBPNG_PATH) $(LIBFT_PATH) $(PRINTF_PATH)
         mkdir -p $(OBJ_DIR) ; \
     fi
 	@echo "    CC $<"
-	@$(CC) $(FLAGS) $(INCLUDES) -o $@ -c $<
+	@$(CC) $(CFLAGS) $(INCLUDES) -o $@ -c $<
 
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)

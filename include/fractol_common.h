@@ -18,6 +18,7 @@
 # include <unistd.h>
 # include "libft.h"
 # include "ft_printf.h"
+# include <SDL.h>
 
 int					dispatch(const char **argv, void *display);
 
