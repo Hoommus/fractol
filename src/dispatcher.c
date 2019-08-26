@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 21:52:16 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/08/25 15:34:56 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/08/26 16:44:34 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,11 @@ static const struct s_command	g_dispatchable[] =
 	{
 		.name = "mandelbrot",
 		.temp_late = {
+			0,
 			100,
 			&mandel_pixel,
+			&mandel_avx2,
+			NULL,
 			{0},
 			NULL
 		}
@@ -27,8 +30,11 @@ static const struct s_command	g_dispatchable[] =
 	{
 		.name = "julia",
 		.temp_late = {
+			0,
 			100,
 			&mandel_pixel,
+			&mandel_avx2,
+			NULL,
 			{0},
 			NULL
 		}
@@ -38,26 +44,61 @@ static const struct s_command	g_dispatchable[] =
 	}
 };
 
-void							calculate_fractal(struct s_fractal *fractal, struct s_rgba_map *pixels)
+void							calculate_fractal_avx(struct s_fractal *fractal,
+	struct s_rgba_map *pixels, void *sdl_pixels)
 {
 	static struct s_fractal	*current;
-	int32_t					i;
-	int32_t					j;
+	const t_fract_calc		func = current ? current->calculator_avx : NULL;
+	int32_t					x;
+	int32_t					y;
 
 	if (current != fractal)
-		current = fractal;
-	i = -1;
-	while (++i < pixels->width)
 	{
-		j = -1;
-		while (++j < pixels->height)
-		{
-			current->calculator(current, pixels, i, j);
-		}
+		current = fractal;
+		ft_memcpy((void *)&func, &(current->calculator), sizeof(current->calculator));
 	}
+	// TODO: map x and y to [-2.0..2.0] and pass them instead of bare pixel coords
+	//  it probably doesn't even matter in which order, so there is a chance to
+	//  rewrite these loops in some better(?) way
+	x = 0;
+	while (x < pixels->width)
+	{
+		y = 0;
+		while (y < pixels->height)
+		{
+
+			func(current, pixels, x, y);
+			y += 4;
+		}
+		x += 4;
+	}
+	__builtin_memcpy(sdl_pixels, pixels->map,
+				pixels->height * pixels->width * sizeof(uint32_t));
 }
 
-#define SCANCODE key.keysym.scancode
+void							calculate_fractal(struct s_fractal *fractal,
+	struct s_rgba_map *pixels, void *sdl_pixels)
+{
+	static struct s_fractal	*current;
+	const t_fract_calc		func = current ? current->calculator : NULL;
+	int32_t					x;
+	int32_t					y;
+
+	if (current != fractal)
+	{
+		current = fractal;
+		ft_memcpy((void *)&func, &(current->calculator), sizeof(current->calculator));
+	}
+	x = -1;
+	while (++x < pixels->width)
+	{
+		y = -1;
+		while (++y < pixels->height)
+			func(current, pixels, x, y);
+	}
+	__builtin_memcpy(sdl_pixels, pixels->map,
+				pixels->height * pixels->width * sizeof(uint32_t));
+}
 
 int								forknrun(const struct s_command *cmd, const char __unused **argv, __unused void *display)
 {
@@ -65,40 +106,25 @@ int								forknrun(const struct s_command *cmd, const char __unused **argv, __u
 	struct s_rgba_map	*pixels;
 	SDL_Surface			*surface;
 	SDL_Window			*window;
-	//bool				is_interactive;
 
 	pixels = ft_memalloc(sizeof(struct s_rgba_map));
 	pixels->height = 1000;
 	pixels->width = 1000;
 	pixels->map = ft_memalloc(sizeof(uint32_t) * pixels->width * pixels->height);
 	fractal = cmd->temp_late;
-	window = SDL_CreateWindow("mandelbrot",
-							SDL_WINDOWPOS_UNDEFINED,
-							SDL_WINDOWPOS_UNDEFINED,
-							pixels->width,
-							pixels->height, SDL_WINDOW_OPENGL);
-	calculate_fractal(&fractal, pixels);
-
+	window = SDL_CreateWindow("Good ol' Fract 'ol",
+		SDL_WINDOWPOS_UNDEFINED,
+		SDL_WINDOWPOS_UNDEFINED,
+		pixels->width,
+		pixels->height, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if (window == NULL)
 		ft_dprintf(2, "window is null\n");
 	surface = SDL_GetWindowSurface(window);
 	if (surface == NULL)
-		ft_dprintf(2, "surface is null\n");
-	ft_dprintf(2, "h = %d; w = %d\n", surface->h, surface->w);
-	ft_memcpy(surface->pixels, pixels->map, surface->h * surface->w * 4);
+		exit(ft_dprintf(2, "surface is null\n"));
+	calculate_fractal(&fractal, pixels, surface->pixels);
 	SDL_UpdateWindowSurface(window);
-	bool is_running = true;
-	SDL_Event event;
-	while (is_running)
-	{
-		while (SDL_PollEvent(&event))
-			if (event.type == SDL_QUIT ||
-			(SDL_KEYDOWN == event.type && event.SCANCODE == SDL_SCANCODE_ESCAPE) ||
-			(SDL_KEYDOWN == event.type && event.SCANCODE == SDL_SCANCODE_Q))
-				is_running = false;
-		SDL_UpdateWindowSurface(window);
-		SDL_Delay(16);
-	}
+	game_loop(window, &fractal, pixels);
 	return (0);
 }
 
