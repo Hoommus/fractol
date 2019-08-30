@@ -6,10 +6,11 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 21:52:16 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/08/26 16:44:34 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/08/30 13:58:02 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <complex.h>
 #include "fractol_common.h"
 #include "fractals.h"
 
@@ -57,20 +58,16 @@ void							calculate_fractal_avx(struct s_fractal *fractal,
 		current = fractal;
 		ft_memcpy((void *)&func, &(current->calculator), sizeof(current->calculator));
 	}
-	// TODO: map x and y to [-2.0..2.0] and pass them instead of bare pixel coords
-	//  it probably doesn't even matter in which order, so there is a chance to
-	//  rewrite these loops in some better(?) way
-	x = 0;
-	while (x < pixels->width)
+	y = 0;
+	while (y < pixels->height)
 	{
-		y = 0;
-		while (y < pixels->height)
+		x = 0;
+		while (x < pixels->width)
 		{
-
 			func(current, pixels, x, y);
-			y += 4;
+			x += 4;
 		}
-		x += 4;
+		y += 1;
 	}
 	__builtin_memcpy(sdl_pixels, pixels->map,
 				pixels->height * pixels->width * sizeof(uint32_t));
@@ -100,7 +97,9 @@ void							calculate_fractal(struct s_fractal *fractal,
 				pixels->height * pixels->width * sizeof(uint32_t));
 }
 
-int								forknrun(const struct s_command *cmd, const char __unused **argv, __unused void *display)
+int								forknrun(const struct s_command *cmd,
+	const char __unused **argv,
+	__unused void *display)
 {
 	struct s_fractal	fractal;
 	struct s_rgba_map	*pixels;
@@ -116,9 +115,9 @@ int								forknrun(const struct s_command *cmd, const char __unused **argv, __u
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		pixels->width,
-		pixels->height, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+		pixels->height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if (window == NULL)
-		ft_dprintf(2, "window is null\n");
+		exit(ft_dprintf(2, "window is null\n"));
 	surface = SDL_GetWindowSurface(window);
 	if (surface == NULL)
 		exit(ft_dprintf(2, "surface is null\n"));
@@ -127,8 +126,6 @@ int								forknrun(const struct s_command *cmd, const char __unused **argv, __u
 	game_loop(window, &fractal, pixels);
 	return (0);
 }
-
-
 
 int								dispatch(const char **argv, void *display)
 {

@@ -18,6 +18,8 @@
 # include <unistd.h>
 # include <stdbool.h>
 # include <stdint.h>
+# include <stdnoreturn.h>
+# include <stdarg.h>
 # include "libft.h"
 # include "ft_printf.h"
 # include "fractol_data.h"
@@ -32,5 +34,6 @@ int					dispatch(const char **argv, void *display);
 void				game_loop(SDL_Window *window, struct s_fractal *fractal, struct s_rgba_map *pixels);
 uint32_t			poll_events(SDL_Window *window, struct s_fractal *fractal, struct s_rgba_map *pixels);
 
+noreturn void		quit(int status);
 
 #endif

@@ -6,7 +6,7 @@
 #    By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/08/21 13:49:23 by vtarasiu          #+#    #+#              #
-#    Updated: 2019/08/26 15:42:06 by vtarasiu         ###   ########.fr        #
+#    Updated: 2019/08/29 17:25:31 by vtarasiu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ CC = clang
 NAME = fractol
 
 CFLAGS = -mavx -mavx2 -Wall -Wextra -Werror \
-         -g -O2
+         -g #-fsanitize=address
 
 LIB_DIR = lib/
 
@@ -36,7 +36,10 @@ FRACTOL_SRC = main.c \
               dispatcher.c \
               mandelbrot.c \
               game_loop.c \
-              ui_handlers.c
+              ui_handlers.c \
+              colorizer.c \
+              gradient_map.c \
+              quit.c
 
 HEADERS = fractals.h \
           fractol_png.h

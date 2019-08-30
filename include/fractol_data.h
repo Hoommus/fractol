@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/25 18:59:12 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/08/26 17:56:51 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/08/28 20:31:58 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ struct			s_rgba_map;
 
 typedef uint32_t	(*t_fract_calc)(struct s_fractal *, struct s_rgba_map *, uint32_t, uint32_t);
 
-struct			s_fractal
+typedef struct		s_fractal
 {
 	uint64_t			flags;
 	uint32_t			max_iterations;
@@ -33,6 +33,7 @@ struct			s_fractal
 
 	struct				s_input
 	{
+		bool		fractal_locked;
 		int			mouse_x;
 		int			mouse_y;
 
@@ -43,6 +44,30 @@ struct			s_fractal
 		int			scroll_last_direction;
 	}					input;
 	struct s_rgba_map	*source;
+}					t_fractal;
+
+enum				e_gradient_type
+{
+	GRADIENT_LINEAR,
+	GRADIENT_RADIAL,
+	GRADIENT_REFLECTED,
+	GRADIENT_ANGLED
+};
+
+typedef struct		s_gradient_point
+{
+	uint32_t				color;
+	uint8_t					location;
+	struct s_gradient_point	*next;
+}					t_gradient_point;
+
+struct				s_gradient
+{
+	uint32_t				scale;
+	double					angle; // gradient map won't use this, probably
+	bool					is_reverse;
+	enum e_gradient_type	type;
+	t_gradient_point		*points;
 };
 
 struct			s_command
@@ -61,7 +86,6 @@ struct			s_rgba_map
 {
 	short		width;
 	short		height;
-
 	uint32_t	*map;
 } __attribute__((aligned(32)));
 

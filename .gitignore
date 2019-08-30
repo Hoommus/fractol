@@ -9,5 +9,9 @@
 !Makefile
 !.gitmodules
 !.gitignore
+!LICENSE
+!README.md
+!resources/*
+!resources/**
 lib
 cmake-build-debug/*
