@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: vtarasiu <vtarasiu@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 14:36:20 by vtarasiu          #+#    #+#             */
 /*   Updated: 2019/08/24 18:38:32 by vtarasiu         ###   ########.fr       */

@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   colorizer.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: vtarasiu <vtarasiu@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/28 19:38:52 by vtarasiu          #+#    #+#             */
 /*   Updated: 2019/08/30 14:23:35 by vtarasiu         ###   ########.fr       */

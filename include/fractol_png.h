@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   fractol_png.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: vtarasiu <vtarasiu@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 14:39:13 by vtarasiu          #+#    #+#             */
 /*   Updated: 2019/08/21 14:39:37 by vtarasiu         ###   ########.fr       */

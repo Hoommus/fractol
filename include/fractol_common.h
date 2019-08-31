@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fractol_common.h                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: vtarasiu <vtarasiu@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 22:09:50 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/08/26 19:04:31 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/08/30 19:02:59 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,11 @@
 
 # include <SDL.h>
 
-#define UI_FEEDBACK_REDRAW  0x0001U
-#define UI_FEEDBACK_AVX     0x0010U
-#define UI_FEEDBACK_NEUTRAL 0x0100U
+#define UI_FEEDBACK_REDRAW       0x0001U
+#define UI_FEEDBACK_AVX          0x0002U
+#define UI_FEEDBACK_NEUTRAL      0x0100U
+#define UI_FEEDBACK_MOUSE_DOWN   0x0010U
+#define UI_FEEDBACK_MOUSE_UP     0x0010U
 
 int					dispatch(const char **argv, void *display);
 void				game_loop(SDL_Window *window, struct s_fractal *fractal, struct s_rgba_map *pixels);

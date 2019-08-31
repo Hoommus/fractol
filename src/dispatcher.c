@@ -6,11 +6,10 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 21:52:16 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/08/30 13:58:02 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/08/30 21:21:24 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <complex.h>
 #include "fractol_common.h"
 #include "fractals.h"
 
@@ -20,7 +19,7 @@ static const struct s_command	g_dispatchable[] =
 		.name = "mandelbrot",
 		.temp_late = {
 			0,
-			100,
+			50,
 			&mandel_pixel,
 			&mandel_avx2,
 			NULL,
@@ -32,7 +31,7 @@ static const struct s_command	g_dispatchable[] =
 		.name = "julia",
 		.temp_late = {
 			0,
-			100,
+			50,
 			&mandel_pixel,
 			&mandel_avx2,
 			NULL,
@@ -58,6 +57,9 @@ void							calculate_fractal_avx(struct s_fractal *fractal,
 		current = fractal;
 		ft_memcpy((void *)&func, &(current->calculator), sizeof(current->calculator));
 	}
+	pixels->larger_dimension = pixels->width > pixels->height ? pixels->width : pixels->height;
+	pixels->larger_dimension_half = pixels->larger_dimension / 2.0;
+	pixels->larger_dimension_quarter = pixels->larger_dimension / 4.0;
 	y = 0;
 	while (y < pixels->height)
 	{
@@ -111,6 +113,9 @@ int								forknrun(const struct s_command *cmd,
 	pixels->width = 1000;
 	pixels->map = ft_memalloc(sizeof(uint32_t) * pixels->width * pixels->height);
 	fractal = cmd->temp_late;
+	fractal.input.scroll_depth = 1.0;
+	fractal.input.shift_x = 0.0;
+	fractal.input.shift_y = 0.0;
 	window = SDL_CreateWindow("Good ol' Fract 'ol",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,

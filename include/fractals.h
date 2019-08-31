@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fractals.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: vtarasiu <vtarasiu@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 13:48:42 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/08/28 20:10:20 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/08/30 20:38:34 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,12 +49,12 @@ struct			s_classic_meta
 	double		sqr_img;
 };
 
-uint32_t		mandel_pixel(struct s_fractal *fract,
+uint32_t		mandel_pixel(const struct s_fractal *restrict fract,
 							struct s_rgba_map *pixels,
 							uint32_t x,
 							uint32_t y);
-uint32_t		mandel_avx2(struct s_fractal *fract,
-							struct s_rgba_map *pixels,
+uint32_t		mandel_avx2(const struct s_fractal *restrict fract,
+							struct s_rgba_map *restrict pixels,
 							uint32_t x,
 							uint32_t y);
 
