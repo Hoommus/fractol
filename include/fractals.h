@@ -6,7 +6,7 @@
 /*   By: vtarasiu <vtarasiu@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 13:48:42 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/08/30 20:38:34 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/01 17:54:51 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,21 +25,22 @@
 # define FLAG_NEEDS_EXPORT     2
 # define FLAG_FORCE_AVX        4
 
-struct			s_avx_meta
+struct			s_avx_data
 {
-	__m256d			iterator;
-	__m256d			creal;
-	__m256d			cimg;
-	__m256d			tmp;
-	__m256d			sqr_real;
-	__m256d			sqr_img;
-	__m256d			cx;
-	__m256d			cy;
-	__m256d			iterations_mask;
-	__m256d			iterations;
+	__m256d					iter;
+	__m256d					creal;
+	__m256d					cimg;
+	__m256d					tmp;
+	__m256d					sqr_real;
+	__m256d					sqr_img;
+	__m256d					cx;
+	__m256d					cy;
+	__m256d					iters_mask;
+	__m256d					iters;
+	const struct s_fractal	*fractal;
 } __attribute__((aligned(32)));
 
-struct			s_classic_meta
+struct			s_classic_data
 {
 	double		creal;
 	double		cimg;
@@ -59,7 +60,7 @@ uint32_t		mandel_avx2(const struct s_fractal *restrict fract,
 							uint32_t y);
 
 void			colorize_pixels(struct s_rgba_map *pixels,
-								struct s_gradient *map,
+								struct s_gradient *gradient_map,
 								int arg_points,
 								...);
 

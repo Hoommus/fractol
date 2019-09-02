@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fractol_data.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: vtarasiu <vtarasiu@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/25 18:59:12 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/08/30 21:08:32 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/01 12:40:30 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,13 @@
 
 # include <stdint.h>
 # include <stddef.h>
+# include <stdbool.h>
+# include "fractol_gradients.h"
+
+# define COLOR_RED_MASK   0xFF000000U
+# define COLOR_GREEN_MASK 0x00FF0000U
+# define COLOR_BLUE_MASK  0x0000FF00U
+# define COLOR_ALPHA_MASK 0x000000FFU
 
 struct				s_fractal;
 struct				s_rgba_map;
@@ -29,7 +36,7 @@ typedef struct		s_fractal
 	t_fract_calc		calculator;
 	t_fract_calc		calculator_avx;
 
-	void				*color_function;
+	struct s_gradient	*gradient_map;
 
 	struct				s_input
 	{
@@ -45,52 +52,48 @@ typedef struct		s_fractal
 	struct s_rgba_map	*source;
 }					t_fractal;
 
-enum				e_gradient_type
-{
-	GRADIENT_LINEAR,
-	GRADIENT_RADIAL,
-	GRADIENT_REFLECTED,
-	GRADIENT_ANGLED
-};
-
-typedef struct		s_gradient_point
-{
-	uint32_t				color;
-	uint8_t					location;
-	struct s_gradient_point	*next;
-}					t_gradient_point;
-
-struct				s_gradient
-{
-	double					scale;
-	double					angle; // gradient map won't use this, probably
-	bool					is_reverse;
-	enum e_gradient_type	type;
-	t_gradient_point		*points;
-};
-
 struct				s_command
 {
 	const char			*name;
 	struct s_fractal	temp_late;
 };
 
-struct				s_pixel
+struct				s_pixel_meta
 {
-	uint32_t	color;
 	uint32_t	iteration;
 };
 
 struct				s_rgba_map
 {
-	short		width;
-	short		height;
+	short				width;
+	short				height;
 
-	short		larger_dimension;
-	float		larger_dimension_half;
-	float		larger_dimension_quarter;
+	short				larger_dimension;
+	float				larger_dimension_half;
+	float				larger_dimension_quarter;
 
-	uint32_t	*map;
+	uint32_t			*map;
+	struct s_pixel_meta	*map_metadata;
 } __attribute__((aligned(32)));
+
+enum				e_color
+{
+	COLOR_WHITE  = 0xFFFFFF00,
+	COLOR_100_BLACK  = 0x00000000,
+	COLOR_RED    = 0xFF000000,
+	COLOR_GREEN  = 0x00FF0000,
+	COLOR_BLUE   = 0x0000FF00,
+	COLOR_YELLOW = 0x00FFFF00,
+	COLOR_CHAOS_BLACK = 0x00152200,
+	COLOR_ULTRAMARINE = 0x120A8F00,
+	COLOR_ULTRAMARINES_BLUE = 0x0066B300,
+	COLOR_GOLDEN_YELLOW = 0xFFC20E00,
+	COLOR_MACHARIUS_SOLAR_ORANGE = 0xB9402300,
+	COLOR_BLOOD_RED = 0xD2223E00,
+	COLOR_DARK_ANGEL_GREEN = 0x19553C00,
+	COLOR_HAWK_TURQUOISE = 0x00819400,
+	COLOR_LICHE_PURPLE = 0x2C2D8B00,
+	COLOR_WARLOCK_PURPLE = 0xA43E8B00,
+};
 
 #endif

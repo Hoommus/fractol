@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/26 17:59:44 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/08/31 11:42:08 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/02 19:34:18 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,9 @@
 
 #define SCANCODE key.keysym.scancode
 
-uint32_t		poll_events(SDL_Window *window, struct s_fractal *fractal, struct s_rgba_map *pixels)
+uint32_t			poll_events(SDL_Window *window,
+						struct s_fractal *fractal,
+						struct s_rgba_map *pixels)
 {
 	static int	mouse_pressed_x;
 	static int	mouse_pressed_y;
@@ -31,9 +33,9 @@ uint32_t		poll_events(SDL_Window *window, struct s_fractal *fractal, struct s_rg
 		{
 			SDL_DestroyWindow(window);
 			SDL_Quit();
+			TTF_Quit();
 			exit(0);
 		}
-
 		if (event.window.windowID != SDL_GetWindowID(window))
 			return (feedback);
 		if (event.type == SDL_WINDOWEVENT &&
@@ -75,7 +77,7 @@ uint32_t		poll_events(SDL_Window *window, struct s_fractal *fractal, struct s_rg
 			feedback |= UI_FEEDBACK_AVX;
 		if (event.type == SDL_MOUSEWHEEL && !fractal->input.fractal_locked)
 		{
-			fractal->input.scroll_depth += event.wheel.y / 10.0;
+			fractal->input.scroll_depth += event.wheel.y * 5.0;
 			feedback |= UI_FEEDBACK_REDRAW;
 		}
 		if (event.type == SDL_KEYDOWN && event.SCANCODE == SDL_SCANCODE_L)
@@ -88,6 +90,11 @@ uint32_t		poll_events(SDL_Window *window, struct s_fractal *fractal, struct s_rg
 		if (event.type == SDL_KEYDOWN && (event.SCANCODE == SDL_SCANCODE_MINUS || event.SCANCODE == SDL_SCANCODE_KP_MINUS))
 		{
 			fractal->max_iterations -= fractal->max_iterations > 0 ? 1 : 0;
+			feedback |= UI_FEEDBACK_REDRAW;
+		}
+		if (event.type == SDL_KEYDOWN && (event.SCANCODE == SDL_SCANCODE_R))
+		{
+			fractal->gradient_map->is_reverse = !fractal->gradient_map->is_reverse;
 			feedback |= UI_FEEDBACK_REDRAW;
 		}
 	}

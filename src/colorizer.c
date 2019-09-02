@@ -6,10 +6,11 @@
 /*   By: vtarasiu <vtarasiu@student.unit.ua>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/28 19:38:52 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/08/30 14:23:35 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/01 17:36:00 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "fractol_gradients.h"
 #include "fractol_common.h"
 
 /*
@@ -19,7 +20,7 @@
 */
 
 void		colorize_pixels(struct s_rgba_map *pixels,
-							struct s_gradient *map,
+							struct s_gradient *gradient_map,
 							int arg_points,
 							...)
 {
@@ -29,21 +30,21 @@ void		colorize_pixels(struct s_rgba_map *pixels,
 	uint32_t	iteration;
 	va_list		args;
 
-	map = NULL; // later
 	va_start(args, arg_points);
 	i = 0;
-//	printf("painting ");
 	while (i < arg_points)
 	{
 		x = va_arg(args, uint32_t);
 		y = va_arg(args, uint32_t);
 		iteration = va_arg(args, int);
-//		printf("x: % 3d y: % 3d with %x ", x, y, iteration);
-		pixels->map[y * pixels->width + x] = 0x00 - (((iteration + 1) % 18) * 0x08080808);
+		if (gradient_map && gradient_map->interpolated_colors_cache)
+			pixels->map[y * pixels->width + x] =
+				gradient_map->interpolated_colors_cache[gradient_map->is_reverse ? gradient_map->max_iterations - iteration : iteration];
+		else
+			pixels->map[y * pixels->width + x] = grad_get_iter_color(gradient_map, iteration);
+		pixels->map_metadata[y * pixels->width + x].iteration = iteration;
 		i++;
 	}
-//	printf("\n");
-//	fflush(stdout);
 	va_end(args);
 }
 

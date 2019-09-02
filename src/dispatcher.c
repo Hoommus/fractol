@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 21:52:16 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/08/30 21:21:24 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/02 19:33:18 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,13 +109,23 @@ int								forknrun(const struct s_command *cmd,
 	SDL_Window			*window;
 
 	pixels = ft_memalloc(sizeof(struct s_rgba_map));
-	pixels->height = 1000;
-	pixels->width = 1000;
-	pixels->map = ft_memalloc(sizeof(uint32_t) * pixels->width * pixels->height);
+	pixels->height = 1600;
+	pixels->width = 1400;
+	pixels->map = ft_memalloc(sizeof(uint32_t) * pixels->width * pixels->height + 4);
+	pixels->map_metadata = ft_memalloc(sizeof(struct s_pixel_meta) * pixels->width * pixels->height + 4);
 	fractal = cmd->temp_late;
 	fractal.input.scroll_depth = 1.0;
 	fractal.input.shift_x = 0.0;
 	fractal.input.shift_y = 0.0;
+//	fractal.gradient_map = grad_create_from(GRADIENT_LINEAR, fractal.max_iterations,
+//		2, 0x00, 1, 0xFFFFFF00, fractal.max_iterations);
+	fractal.gradient_map = grad_create_from(GRADIENT_LINEAR, fractal.max_iterations,
+		3,
+		COLOR_GOLDEN_YELLOW, 1,
+		COLOR_MACHARIUS_SOLAR_ORANGE, 2 * fractal.max_iterations / 3,
+		COLOR_WARLOCK_PURPLE, fractal.max_iterations);
+	fractal.gradient_map->is_reverse = true;
+	grad_cache_colors(fractal.gradient_map);
 	window = SDL_CreateWindow("Good ol' Fract 'ol",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
@@ -126,7 +136,7 @@ int								forknrun(const struct s_command *cmd,
 	surface = SDL_GetWindowSurface(window);
 	if (surface == NULL)
 		exit(ft_dprintf(2, "surface is null\n"));
-	calculate_fractal(&fractal, pixels, surface->pixels);
+	//calculate_fractal(&fractal, pixels, surface->pixels);
 	SDL_UpdateWindowSurface(window);
 	game_loop(window, &fractal, pixels);
 	return (0);

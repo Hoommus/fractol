@@ -6,7 +6,7 @@
 #    By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/08/21 13:49:23 by vtarasiu          #+#    #+#              #
-#    Updated: 2019/08/30 20:43:00 by vtarasiu         ###   ########.fr        #
+#    Updated: 2019/09/02 14:38:03 by vtarasiu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ CC = clang
 NAME = fractol
 
 CFLAGS = -mavx -mavx2 -Wall -Wextra -Werror \
-         -O2 -fsanitize=address
+         -g -O2 #-fsanitize=address
 
 LIB_DIR = lib/
 
@@ -41,14 +41,24 @@ FRACTOL_SRC = main.c \
               gradient_map.c \
               quit.c
 
+SDL_HEADER_PATH = /Users/vtarasiu/.brew/Cellar/sdl2/2.0.10/include/SDL2/
+SDL_LIB_PATH = /Users/vtarasiu/.brew/Cellar/sdl2/2.0.10/lib/
+
+SDL_TTF_HEADER_PATH = $(HOME)/.brew/Cellar/sdl2_ttf/2.0.15/include/SDL2/
+SDL_TTF_LIB_PATH = $(HOME)/.brew/Cellar/sdl2_ttf/2.0.15/lib
+
 HEADERS = fractals.h \
-          fractol_png.h
+          fractol_png.h \
+          fractol_data.h \
+          fractol_common.h \
+          fractol_gradients.h
 
 INCLUDES = -I include -I $(PRINTF_DIR)/include -I $(LIBFT_DIR) -I $(LIBPNG_DIR) \
-           -I /Library/Frameworks/SDL2.framework/Versions/A/Headers/
+           -I /Library/Frameworks/SDL2.framework/Versions/A/Headers/ \
+           -I $(SDL_TTF_HEADER_PATH) -I $(SDL_HEADER_PATH)
 LIBRARIES = -lft -lftprintf -L$(PRINTF_DIR) -L$(LIBFT_DIR) -L$(LIBPNG_DIR) \
             -framework OpenGL -framework AppKit -L/usr/local/lib/ \
-            -F /Library/Frameworks -framework SDL2
+            -L $(SDL_TTF_LIB_PATH) -L $(SDL_LIB_PATH) -l SDL2 -l SDL2_ttf
 
 OBJ_DIR = obj/
 OBJ = $(addprefix $(OBJ_DIR), $(FRACTOL_SRC:.c=.o))
