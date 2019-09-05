@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/25 18:58:12 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/02 19:31:45 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/03 17:14:49 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ static TTF_Font		*choose_font(void)
 	while (g_font_names[i])
 	{
 		if (access(g_font_names[i], F_OK | R_OK) == 0 &&
-			(font = TTF_OpenFont(g_font_names[i], 24)))
+			(font = TTF_OpenFont(g_font_names[i], 16)))
 			return (font);
 		i++;
 	}
@@ -44,12 +44,9 @@ static TTF_Font		*choose_font(void)
 
 static void			render_metadata(SDL_Window *window,
 									   __unused struct s_fractal *fractal,
-									   struct s_rgba_map *pixels)
+									   struct s_rgba_map __unused *pixels)
 {
-	SDL_Surface		*metadata_surface;
-	SDL_Renderer	*renderer;
-	SDL_Texture		*texture;
-	SDL_Rect		rectangle;
+	SDL_Surface			*metadata_surface;
 
 	if (!g_font)
 		g_font = choose_font();
@@ -58,16 +55,10 @@ static void			render_metadata(SDL_Window *window,
 		dprintf(2, "No font, lol\n");
 		return ;
 	}
-	metadata_surface = TTF_RenderText_Solid(g_font, "hello", (SDL_Color){0xFF, 0xFF, 0xFF, 0});
-	renderer = SDL_CreateRenderer(window, 0, SDL_RENDERER_SOFTWARE);
-	texture = SDL_CreateTextureFromSurface(renderer, metadata_surface);
+	TTF_SetFontHinting(g_font, TTF_HINTING_NORMAL);
+	metadata_surface = TTF_RenderText_Blended(g_font, "hello world", (SDL_Color){0xFF, 0xFF, 0xFF, 0});
+	SDL_BlitSurface(metadata_surface, NULL, SDL_GetWindowSurface(window), NULL);
 	SDL_FreeSurface(metadata_surface);
-	rectangle.x = pixels->width - 200;
-	rectangle.y = pixels->height - 160;
-	rectangle.w = 200;
-	rectangle.h = 160;
-	SDL_RenderCopy(renderer, texture, NULL, &rectangle);
-	SDL_RenderPresent(renderer);
 }
 
 
@@ -98,8 +89,8 @@ noreturn void	game_loop(SDL_Window *window, struct s_fractal *fractal, struct s_
 				calculate_fractal(fractal, pixels, SDL_GetWindowSurface(window)->pixels);
 			gettimeofday(&end, NULL);
 			printf("%s: %ld s %d us\n", is_avx ? "avx" : "classic", end.tv_sec - start.tv_sec, abs(end.tv_usec - start.tv_usec));
-			SDL_UpdateWindowSurface(window);
 			render_metadata(window, fractal, pixels);
+			SDL_UpdateWindowSurface(window);
 		}
 		SDL_Delay(16);
 	}

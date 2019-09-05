@@ -6,20 +6,23 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/28 20:02:59 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/02 15:47:36 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/05 13:15:27 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <assert.h>
 #include "fractol_common.h"
 #include "fractol_gradients.h"
 
-struct s_gradient_point		*grad_create_point(uint32_t color, uint32_t location)
+struct s_gradient_point		*grad_create_point(uint32_t color, uint32_t location, uint32_t max)
 {
 	struct s_gradient_point	*point;
 
 	point = ft_memalloc(sizeof(struct s_gradient_point));
-	point->color = color;
-	point->location = location;
+	point->rgba = color;
+	point->location = (double)location / max;
+	rgb2hsvl(color, &(point->hsvl));
+	printf("%06x - hsv(%f, %f, %f)\n", hsvl2rgb(&(point->hsvl)), point->hsvl.h, point->hsvl.s, point->hsvl.v);
 	return (point);
 }
 
@@ -31,7 +34,7 @@ struct s_gradient_point		*grad_create_point_for(struct s_gradient *gradient,
 	struct s_gradient_point	*list;
 	struct s_gradient_point	*direct;
 
-	point = grad_create_point(color, location);
+	point = grad_create_point(color, location, gradient->max_iterations);
 	list = gradient->points_list;
 	while (list)
 	{
@@ -73,7 +76,7 @@ struct s_gradient			*grad_create_from(enum e_gradient_type type,
 	gradient->points_quantity = points_quantity;
 	while (points_quantity)
 	{
-		grad_create_point_for(gradient, va_arg(args, uint32_t), va_arg(args, uint32_t) / (double)max_iterations);
+		grad_create_point_for(gradient, va_arg(args, uint32_t), va_arg(args, uint32_t));
 		points_quantity--;
 	}
 	va_end(args);
@@ -92,53 +95,45 @@ struct s_gradient			*grad_cache_colors(struct s_gradient *gradient)
 	while (i < gradient->max_iterations)
 	{
 		cache[i] = grad_get_iter_color(gradient, i);
-		printf("%d: %x\n", i, cache[i]);
+		printf("%d: %0.8x\n", i, cache[i]);
 		i++;
 	}
 	gradient->interpolated_colors_cache = cache;
 	return (gradient);
 }
 
-// void interpolate()
-// void interpolate_next()
-// void get_color_for_position(struct s_gradient *gradient, double position)
-// int get_position_for_iteration(struct s_gradient *gradient, int max_iter)
-
-#define COLOR_GET_RED(x) (((x) & COLOR_RED_MASK) >> 24U)
-#define COLOR_GET_GREEN(x) (((x) & COLOR_GREEN_MASK) >> 16U)
-#define COLOR_GET_BLUE(x) (((x) & COLOR_BLUE_MASK) >> 8U)
-#define COLOR_GET_ALPHA(x) (((x) & COLOR_ALPHA_MASK))
-
-union			u_color
-{
-	uint32_t	color_int;
-	uint8_t		color_rgba[4];
-};
-
 uint32_t					grad_get_iter_color(struct s_gradient *gradient,
 	uint32_t iteration)
 {
-	union u_color			color;
-	double					location;
+	double					l;
 	const t_gradient_point	*list = gradient->points_list;
+	struct s_hsvl			hsvl_first;
+	struct s_hsvl			hsvl_next;
+	struct s_hsvl			hsvl_inter;
 
 	if (gradient->interpolated_colors_cache && iteration <= gradient->max_iterations)
 		return (gradient->interpolated_colors_cache[iteration]);
-	location = (double)iteration / (double)gradient->max_iterations; // location percentage
+	l = (double)iteration / (double)gradient->max_iterations;
 	while (list && list->next)
 	{
-		if (list->next && location > list->location && location < list->next->location)
+		if (list->next && l > list->location && l < list->next->location)
 		{
-			color.color_rgba[0] = (uint8_t)((COLOR_GET_RED(list->next->color) - (COLOR_GET_RED(list->color)))
-				* location + COLOR_GET_RED(list->color));
-			color.color_rgba[1] = (uint8_t)((COLOR_GET_GREEN(list->next->color) - (COLOR_GET_GREEN(list->color)))
-				* location + COLOR_GET_GREEN(list->color));
-			color.color_rgba[2] = (uint8_t)((COLOR_GET_BLUE(list->next->color) - (COLOR_GET_BLUE(list->color)))
-				* location + COLOR_GET_BLUE(list->color));
-			color.color_rgba[3] = 0;
-			return (color.color_int);
+			hsvl_first = list->hsvl;
+			hsvl_next = list->next->hsvl;
+			double d = hsvl_next.h - hsvl_first.h;
+			if (ABS(d) > 180)
+				hsvl_inter.h = fmod(hsvl_next.h + d * l, 360.0);
+			else
+				hsvl_inter.h = hsvl_first.h + d * l;
+			hsvl_inter.s = hsvl_first.s + (hsvl_next.s - hsvl_first.s) * l;
+			hsvl_inter.v = hsvl_first.v + (hsvl_next.v - hsvl_first.v) * l;
+			return (hsvl2rgb(&hsvl_inter));
 		}
 		list = list->next;
 	}
-	return (list == NULL || list->next == NULL ? 0 : list->next->color);
+	if (list == NULL)
+		return (0);
+	else if (list->next == NULL)
+		return (list->rgba);
+	return (list->next->rgba);
 }

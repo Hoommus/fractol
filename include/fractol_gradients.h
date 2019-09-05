@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fractol_gradients.h                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vtarasiu <vtarasiu@student.unit.ua>        +#+  +:+       +#+        */
+/*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/01 12:38:28 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/01 18:59:24 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/04 17:23:09 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,20 @@ enum				e_gradient_type
 	GRADIENT_ANGLED
 };
 
+typedef struct		s_hsvl
+{
+	float	h;
+	float	s;
+	float	v;
+	float	l;
+}					t_hsvl_color;
+
 typedef struct		s_gradient_point
 {
-	uint32_t				color;
+	uint32_t				rgba;
+	t_hsvl_color			hsvl;
 	uint32_t				iteration;
+	uint8_t					opacity;
 	double					location;
 	struct s_gradient_point	*next;
 }					t_gradient_point;
@@ -42,7 +52,8 @@ struct				s_gradient
 	t_gradient_point		*points_list;
 };
 
-t_gradient_point	*grad_create_point(uint32_t color, uint32_t location);
+struct s_hsvl		*rgb2hsvl(uint32_t rgba, struct s_hsvl *restrict dst);
+uint32_t			hsvl2rgb(const struct s_hsvl *restrict hsvl);
 
 t_gradient_point	*grad_create_point_for(struct s_gradient *gradient,
 											uint32_t color,

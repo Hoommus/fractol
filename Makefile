@@ -6,7 +6,7 @@
 #    By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/08/21 13:49:23 by vtarasiu          #+#    #+#              #
-#    Updated: 2019/09/02 14:38:03 by vtarasiu         ###   ########.fr        #
+#    Updated: 2019/09/04 17:34:11 by vtarasiu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,7 +39,8 @@ FRACTOL_SRC = main.c \
               ui_handlers.c \
               colorizer.c \
               gradient_map.c \
-              quit.c
+              quit.c \
+              rgb_to_hsv.c
 
 SDL_HEADER_PATH = /Users/vtarasiu/.brew/Cellar/sdl2/2.0.10/include/SDL2/
 SDL_LIB_PATH = /Users/vtarasiu/.brew/Cellar/sdl2/2.0.10/lib/

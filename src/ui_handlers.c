@@ -70,7 +70,7 @@ uint32_t			poll_events(SDL_Window *window,
 		if (!is_mouse_pressed && event.type == SDL_MOUSEMOTION && !fractal->input.fractal_locked)
 		{
 			fractal->input.mouse_x = event.motion.x;
-			fractal->input.mouse_y = 0;//event.motion.y;
+			fractal->input.mouse_y = event.motion.y;
 			feedback |= UI_FEEDBACK_REDRAW;
 		}
 		if (event.type == SDL_KEYDOWN && event.SCANCODE == SDL_SCANCODE_A)

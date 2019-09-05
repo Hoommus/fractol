@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   mandelbrot.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vtarasiu <vtarasiu@student.unit.ua>        +#+  +:+       +#+        */
+/*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/22 18:46:14 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/01 18:05:30 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/05 12:34:06 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@
 #define SUB(a, b) _mm256_sub_pd((a), (b))
 #define ADD(a, b) _mm256_add_pd((a), (b))
 
-// Seems like this function has no impact on performance.
-// At least with -O2 flag.
 static inline void	mandel_init_registers(struct s_avx_data *m,
 										struct s_rgba_map *restrict map,
 										uint32_t x,
@@ -40,15 +38,17 @@ static inline void	mandel_init_registers(struct s_avx_data *m,
 		(map->larger_dimension_quarter + fract->input.scroll_depth),
 		(((double)x - 3.0) - map->larger_dimension_half + fract->input.shift_x) /
 		(map->larger_dimension_quarter + fract->input.scroll_depth));
-	m->cimg  = _mm256_set1_pd(((
-		(double)y) - map->larger_dimension_half + fract->input.shift_y) /
+	m->cimg  = _mm256_set1_pd(
+		(((double)y) - map->larger_dimension_half + fract->input.shift_y) /
 		(map->larger_dimension_quarter + fract->input.scroll_depth));
-	m->cx = SUB(m->creal, SET1((double)fract->input.mouse_x / map->width));
-	m->cy = ADD(m->cimg, SET1((double)fract->input.mouse_y / map->height));
+	m->cx = SUB(m->creal, _mm256_set_pd(
+		((double)fract->input.mouse_x - map->larger_dimension_half) / (double)map->width,
+		((double)fract->input.mouse_x  - map->larger_dimension_half) / (double)map->width,
+		((double)fract->input.mouse_x  - map->larger_dimension_half) / (double)map->width,
+		((double)fract->input.mouse_x  - map->larger_dimension_half) / (double)map->width));
+	m->cy = ADD(m->cimg, SET1(((double)fract->input.mouse_y - map->larger_dimension_half) / (double)map->height));
 	m->iters_mask = _mm256_set1_pd(0.0);
 }
-
-#define MOVM(a)   _mm256_movemask_pd((a))
 
 uint32_t				mandel_avx2(const struct s_fractal *restrict fract,
 										struct s_rgba_map *restrict pixels,
@@ -70,7 +70,7 @@ uint32_t				mandel_avx2(const struct s_fractal *restrict fract,
 		d.iters_mask = _mm256_add_pd(d.sqr_real, d.sqr_img) < SET1(4.0);
 		d.iters = _mm256_blendv_pd(d.iters, d.iter, d.iters_mask);
 		d.iter = _mm256_sub_pd(d.iter, _mm256_set1_pd(1.0));
-		if (!MOVM(d.iters_mask) || _mm256_movemask_pd(d.iter))
+		if (!_mm256_movemask_pd(d.iters_mask) || _mm256_movemask_pd(d.iter))
 			break ;
 	}
 	_mm256_store_pd(i, d.iters);
@@ -95,8 +95,8 @@ uint32_t				mandel_pixel(const struct s_fractal *restrict fract,
 		(pixels->larger_dimension_quarter + fract->input.scroll_depth);
 	data.sqr_real = 0.0;
 	data.sqr_img = 0.0;
-	data.cx = data.creal - (float)fract->input.mouse_x / pixels->width;
-	data.cy = data.cimg + (float)fract->input.mouse_y / pixels->height;
+	data.cx = data.creal - (float)(fract->input.mouse_x - pixels->larger_dimension_half) / pixels->width;
+	data.cy = data.cimg + (float)(fract->input.mouse_y - pixels->larger_dimension_half) / pixels->height;
 	while (iter > 0 && data.sqr_real + data.sqr_img < 4.0)
 	{
 		data.sqr_real = data.creal * data.creal;

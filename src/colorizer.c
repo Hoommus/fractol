@@ -19,8 +19,8 @@
 ** TODO: make this comment better
 */
 
-void		colorize_pixels(struct s_rgba_map *pixels,
-							struct s_gradient *gradient_map,
+void		colorize_pixels(struct s_rgba_map *restrict pixels,
+							struct s_gradient *restrict gradient_map,
 							int arg_points,
 							...)
 {
