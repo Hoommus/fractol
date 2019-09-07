@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/28 20:02:59 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/05 13:15:27 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/07 17:28:41 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ struct s_gradient_point		*grad_create_point(uint32_t color, uint32_t location, u
 	point->rgba = color;
 	point->location = (double)location / max;
 	rgb2hsvl(color, &(point->hsvl));
-	printf("%06x - hsv(%f, %f, %f)\n", hsvl2rgb(&(point->hsvl)), point->hsvl.h, point->hsvl.s, point->hsvl.v);
+	printf("%06x - hsv(%f, %f, %f)\n", hsv2rgb(&(point->hsvl)), point->hsvl.h, point->hsvl.s, point->hsvl.v);
 	return (point);
 }
 
@@ -95,7 +95,6 @@ struct s_gradient			*grad_cache_colors(struct s_gradient *gradient)
 	while (i < gradient->max_iterations)
 	{
 		cache[i] = grad_get_iter_color(gradient, i);
-		printf("%d: %0.8x\n", i, cache[i]);
 		i++;
 	}
 	gradient->interpolated_colors_cache = cache;
@@ -107,27 +106,35 @@ uint32_t					grad_get_iter_color(struct s_gradient *gradient,
 {
 	double					l;
 	const t_gradient_point	*list = gradient->points_list;
-	struct s_hsvl			hsvl_first;
-	struct s_hsvl			hsvl_next;
-	struct s_hsvl			hsvl_inter;
+	struct s_hsv			hsvl_first;
+	struct s_hsv			hsvl_next;
+	struct s_hsv			hsvl_inter;
 
 	if (gradient->interpolated_colors_cache && iteration <= gradient->max_iterations)
 		return (gradient->interpolated_colors_cache[iteration]);
 	l = (double)iteration / (double)gradient->max_iterations;
 	while (list && list->next)
 	{
-		if (list->next && l > list->location && l < list->next->location)
+		if (list->location == l)
+			return (list->rgba);
+		if (list->next && l > list->location && l <= list->next->location)
 		{
 			hsvl_first = list->hsvl;
 			hsvl_next = list->next->hsvl;
 			double d = hsvl_next.h - hsvl_first.h;
 			if (ABS(d) > 180)
-				hsvl_inter.h = fmod(hsvl_next.h + d * l, 360.0);
+			{
+				if (d < 0)
+					d += 360.0;
+				hsvl_inter.h = fmod(hsvl_first.h + d * l, 360.0);
+			}
 			else
-				hsvl_inter.h = hsvl_first.h + d * l;
+				hsvl_inter.h = hsvl_first.h + fabs(d) * l;
+			hsvl_inter.h += hsvl_inter.h < 0 ? 360.0 : 0;
 			hsvl_inter.s = hsvl_first.s + (hsvl_next.s - hsvl_first.s) * l;
 			hsvl_inter.v = hsvl_first.v + (hsvl_next.v - hsvl_first.v) * l;
-			return (hsvl2rgb(&hsvl_inter));
+			printf("%0.8x hsv(%f, %f, %f)\n", hsv2rgb(&hsvl_inter), hsvl_inter.h, hsvl_inter.s, hsvl_inter.v);
+			return (hsv2rgb(&hsvl_inter));
 		}
 		list = list->next;
 	}

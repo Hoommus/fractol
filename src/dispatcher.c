@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 21:52:16 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/05 13:09:24 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/07 16:40:40 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,9 +121,9 @@ int								forknrun(const struct s_command *cmd,
 //		2, 0x00, 1, 0xFFFFFF00, fractal.max_iterations);
 	fractal.gradient_map = grad_create_from(GRADIENT_LINEAR, fractal.max_iterations,
 		2,
-		COLOR_GOLDEN_YELLOW, 0,
+		COLOR_WHITE, 0,
 //		COLOR_MACHARIUS_SOLAR_ORANGE, 2 * fractal.max_iterations / 3,
-		COLOR_ULTRAMARINE, fractal.max_iterations - 1);
+		COLOR_100_BLACK, fractal.max_iterations);
 	fractal.gradient_map->is_reverse = true;
 	grad_cache_colors(fractal.gradient_map);
 	window = SDL_CreateWindow("Good ol' Fract 'ol",

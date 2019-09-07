@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/25 18:58:12 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/03 17:14:49 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/07 16:35:05 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ static void			render_metadata(SDL_Window *window,
 									   struct s_rgba_map __unused *pixels)
 {
 	SDL_Surface			*metadata_surface;
+	SDL_Surface			*gradient_test_surface;
 
 	if (!g_font)
 		g_font = choose_font();
@@ -59,6 +60,35 @@ static void			render_metadata(SDL_Window *window,
 	metadata_surface = TTF_RenderText_Blended(g_font, "hello world", (SDL_Color){0xFF, 0xFF, 0xFF, 0});
 	SDL_BlitSurface(metadata_surface, NULL, SDL_GetWindowSurface(window), NULL);
 	SDL_FreeSurface(metadata_surface);
+	gradient_test_surface = SDL_CreateRGBSurface(0, pixels->width, 50, 32, 0, 0, 0, 0);
+	uint32_t			i;
+
+	i = 0;
+	uint32_t			j = 0;
+
+	while (i < fractal->max_iterations)
+	{
+		((uint32_t *) gradient_test_surface->pixels)[(j)] =
+			grad_get_iter_color(fractal->gradient_map, i);
+		((uint32_t *) gradient_test_surface->pixels)[(j + 1) * pixels->width] =
+			grad_get_iter_color(fractal->gradient_map, i);
+		((uint32_t *) gradient_test_surface->pixels)[(j + 2) * pixels->width] =
+			grad_get_iter_color(fractal->gradient_map, i);
+		((uint32_t *) gradient_test_surface->pixels)[(j + 3) * pixels->width] =
+			grad_get_iter_color(fractal->gradient_map, i);
+		((uint32_t *) gradient_test_surface->pixels)[(j + 4) * pixels->width] =
+			grad_get_iter_color(fractal->gradient_map, i);
+		((uint32_t *) gradient_test_surface->pixels)[(j + 5) * pixels->width] =
+			grad_get_iter_color(fractal->gradient_map, i);
+		((uint32_t *) gradient_test_surface->pixels)[(j + 6) * pixels->width] =
+			grad_get_iter_color(fractal->gradient_map, i);
+		((uint32_t *) gradient_test_surface->pixels)[(j + 7) * pixels->width] =
+			grad_get_iter_color(fractal->gradient_map, i);
+		j = i;
+		i++;
+	}
+	SDL_BlitSurface(gradient_test_surface, NULL, SDL_GetWindowSurface(window), NULL);
+	SDL_FreeSurface(gradient_test_surface);
 }
 
 
@@ -69,7 +99,6 @@ noreturn void	game_loop(SDL_Window *window, struct s_fractal *fractal, struct s_
 {
 	uint32_t	ret;
 	bool		is_avx;
-	bool		is_mouse_pressed;
 
 	is_avx = true;
 	while (true)
@@ -79,7 +108,6 @@ noreturn void	game_loop(SDL_Window *window, struct s_fractal *fractal, struct s_
 		{
 			if ((ret & UI_FEEDBACK_AVX))
 				is_avx = !is_avx;
-			is_mouse_pressed = (ret & UI_FEEDBACK_MOUSE_DOWN);
 			struct timeval	start;
 			struct timeval	end;
 			gettimeofday(&start, NULL);

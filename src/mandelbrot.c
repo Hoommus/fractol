@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/22 18:46:14 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/05 12:34:06 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/07 16:03:57 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,16 +20,17 @@
 #define SUB(a, b) _mm256_sub_pd((a), (b))
 #define ADD(a, b) _mm256_add_pd((a), (b))
 
-static inline void	mandel_init_registers(struct s_avx_data *m,
+static inline void	mandel_init_registers(struct s_avx_data *restrict data,
 										struct s_rgba_map *restrict map,
 										uint32_t x,
 										uint32_t y)
 {
-	const struct s_fractal	*fract = m->fractal;
+	const struct s_fractal	*fract = data->fractal;
+	struct s_avx_data		m;
 
-	m->iters = _mm256_setzero_pd();
-	m->iter = _mm256_set1_pd(fract->max_iterations);
-	m->creal = _mm256_set_pd(
+	m.iters = _mm256_setzero_pd();
+	m.iter = _mm256_set1_pd(fract->max_iterations);
+	m.creal = _mm256_set_pd(
 		(((double)x - 0.0) - map->larger_dimension_half + fract->input.shift_x) /
 		(map->larger_dimension_quarter + fract->input.scroll_depth),
 		(((double)x - 1.0) - map->larger_dimension_half + fract->input.shift_x) /
@@ -38,16 +39,17 @@ static inline void	mandel_init_registers(struct s_avx_data *m,
 		(map->larger_dimension_quarter + fract->input.scroll_depth),
 		(((double)x - 3.0) - map->larger_dimension_half + fract->input.shift_x) /
 		(map->larger_dimension_quarter + fract->input.scroll_depth));
-	m->cimg  = _mm256_set1_pd(
+	m.cimg  = _mm256_set1_pd(
 		(((double)y) - map->larger_dimension_half + fract->input.shift_y) /
 		(map->larger_dimension_quarter + fract->input.scroll_depth));
-	m->cx = SUB(m->creal, _mm256_set_pd(
+	m.cx = SUB(m.creal, _mm256_set_pd(
 		((double)fract->input.mouse_x - map->larger_dimension_half) / (double)map->width,
-		((double)fract->input.mouse_x  - map->larger_dimension_half) / (double)map->width,
-		((double)fract->input.mouse_x  - map->larger_dimension_half) / (double)map->width,
-		((double)fract->input.mouse_x  - map->larger_dimension_half) / (double)map->width));
-	m->cy = ADD(m->cimg, SET1(((double)fract->input.mouse_y - map->larger_dimension_half) / (double)map->height));
-	m->iters_mask = _mm256_set1_pd(0.0);
+		((double)fract->input.mouse_x - map->larger_dimension_half) / (double)map->width,
+		((double)fract->input.mouse_x - map->larger_dimension_half) / (double)map->width,
+		((double)fract->input.mouse_x - map->larger_dimension_half) / (double)map->width));
+	m.cy = ADD(m.cimg, SET1(((double)fract->input.mouse_y - map->larger_dimension_half) / (double)map->height));
+	m.iters_mask = _mm256_set1_pd(0.0);
+	*data = m;
 }
 
 uint32_t				mandel_avx2(const struct s_fractal *restrict fract,
