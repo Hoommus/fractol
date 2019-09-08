@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fractol_data.h                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vtarasiu <vtarasiu@student.unit.ua>        +#+  +:+       +#+        */
+/*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/25 18:59:12 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/01 12:40:30 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/08 14:02:44 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,17 +40,34 @@ typedef struct		s_fractal
 
 	struct				s_input
 	{
-		bool		fractal_locked;
+		bool		locked;
 		int			mouse_x;
 		int			mouse_y;
 
 		double		shift_x;
 		double		shift_y;
 
+		double		factor_cx;
+		double		factor_cy;
+
+		double		factor_scale_x;
+		double		factor_scale_y;
+
+		double		factor_shift_x;
+		double		factor_shift_y;
+
 		double		scroll_depth;
 	}					input;
 	struct s_rgba_map	*source;
 }					t_fractal;
+
+typedef struct		s_color
+{
+	uint8_t		r;
+	uint8_t		g;
+	uint8_t		b;
+	uint8_t		a;
+}					t_color;
 
 struct				s_command
 {

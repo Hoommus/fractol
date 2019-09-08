@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/02 16:55:22 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/07 16:16:34 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/08 16:40:17 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,8 @@ static inline float	min(float a, float b, float c)
 	return (c < b ? c : b);
 }
 
-struct s_hsv		*rgb2hsvl(uint32_t rgba, struct s_hsv *restrict dst)
+struct s_hsv		*rgb2hsv(uint32_t rgba, struct s_hsv *restrict dst)
 {
-
 	const double	r = ((double)((rgba & 0xFF000000U) >> 24U)) / 255.0f;
 	const double	g = ((double)((rgba & 0x00FF0000U) >> 16U)) / 255.0f;
 	const double	b = ((double)((rgba & 0x0000FF00U) >> 8U)) / 255.0f;
@@ -59,21 +58,30 @@ struct s_hsv		*rgb2hsvl(uint32_t rgba, struct s_hsv *restrict dst)
 	else
 		dst->s = (max_color - min_color) / max_color;
 	dst->v = max_color;
-//	printf("%0.8x    - hsv(%f, %f, %f)\n", rgba, dst->h, dst->s, dst->v);
 	return (dst);
 }
+
+union			color
+{
+	uint8_t		bytes[4];
+	uint32_t	integer;
+};
 
 static inline uint32_t	get_rgba(double r, double g, double b)
 {
 	uint8_t		bytes[4];
+//	union color	c;
 
-	bytes[0] = (uint8_t)round(r * 255.);
-	bytes[1] = (uint8_t)round(g * 255.);
-	bytes[2] = (uint8_t)round(b * 255.);
-	bytes[3] = 0;
-//	printf("Returning rgba: %.8x\n", __builtin_bswap32(*((uint32_t *)bytes)));
-//	return (__builtin_bswap32(*((uint32_t *)bytes)));
-	return (*((uint32_t *)bytes));
+	bytes[3] = (uint8_t)round(r * 255.);
+	bytes[2] = (uint8_t)round(g * 255.);
+	bytes[1] = (uint8_t)round(b * 255.);
+	bytes[0] = 0;
+	printf("r: %.2x g: %.2x b: %.2x; all: %.8x\n",
+		bytes[0],
+		bytes[1],
+		bytes[2],
+		   *((uint32_t *)bytes));
+	return (*((uint32_t *)bytes) >> 8U);
 }
 
 uint32_t			hsv2rgb(const struct s_hsv *restrict hsv)
@@ -83,14 +91,7 @@ uint32_t			hsv2rgb(const struct s_hsv *restrict hsv)
 	const double		x = c * (1 - fabs(fmod(sector, 2.0f) - 1));
 	const double		m = hsv->v * (1 - hsv->s);
 
-//	printf("- hsv(%f, %f, %f)\n", hsv->h, hsv->s, hsv->v);
 	assert(hsv->h >= 0. && hsv->h <= 360.);
-	assert(hsv->v >= 0. && hsv->v <= 1.);
-	assert(hsv->s >= 0. && hsv->s <= 1.);
-	assert(c + m <= 0xFF && c + m >= 0);
-	assert(x + m <= 0xFF && x + m >= 0);
-	assert(m <= 0xFF && m >= 0);
-	assert(sector >= 0 && sector <= 6);
 	if (sector < 0)
 		return (get_rgba(m, m, m));
 	else if (sector <= 1)

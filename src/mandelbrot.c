@@ -6,50 +6,34 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/22 18:46:14 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/07 16:03:57 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/08 15:34:12 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractals.h"
 #include "ft_printf.h"
 
-#include <unistd.h>
-#include <stdio.h>
-
 #define SET1(a)   _mm256_set1_pd((a))
 #define SUB(a, b) _mm256_sub_pd((a), (b))
 #define ADD(a, b) _mm256_add_pd((a), (b))
 
 static inline void	mandel_init_registers(struct s_avx_data *restrict data,
-										struct s_rgba_map *restrict map,
 										uint32_t x,
 										uint32_t y)
 {
 	const struct s_fractal	*fract = data->fractal;
-	struct s_avx_data		m;
 
-	m.iters = _mm256_setzero_pd();
-	m.iter = _mm256_set1_pd(fract->max_iterations);
-	m.creal = _mm256_set_pd(
-		(((double)x - 0.0) - map->larger_dimension_half + fract->input.shift_x) /
-		(map->larger_dimension_quarter + fract->input.scroll_depth),
-		(((double)x - 1.0) - map->larger_dimension_half + fract->input.shift_x) /
-		(map->larger_dimension_quarter + fract->input.scroll_depth),
-		(((double)x - 2.0) - map->larger_dimension_half + fract->input.shift_x) /
-		(map->larger_dimension_quarter + fract->input.scroll_depth),
-		(((double)x - 3.0) - map->larger_dimension_half + fract->input.shift_x) /
-		(map->larger_dimension_quarter + fract->input.scroll_depth));
-	m.cimg  = _mm256_set1_pd(
-		(((double)y) - map->larger_dimension_half + fract->input.shift_y) /
-		(map->larger_dimension_quarter + fract->input.scroll_depth));
-	m.cx = SUB(m.creal, _mm256_set_pd(
-		((double)fract->input.mouse_x - map->larger_dimension_half) / (double)map->width,
-		((double)fract->input.mouse_x - map->larger_dimension_half) / (double)map->width,
-		((double)fract->input.mouse_x - map->larger_dimension_half) / (double)map->width,
-		((double)fract->input.mouse_x - map->larger_dimension_half) / (double)map->width));
-	m.cy = ADD(m.cimg, SET1(((double)fract->input.mouse_y - map->larger_dimension_half) / (double)map->height));
-	m.iters_mask = _mm256_set1_pd(0.0);
-	*data = m;
+	data->iters = _mm256_setzero_pd();
+	data->iter = _mm256_set1_pd(fract->max_iterations);
+	data->creal = _mm256_set_pd(
+		(x - 0. - fract->input.factor_shift_x) / (fract->input.factor_scale_x),
+		(x - 1. - fract->input.factor_shift_x) / (fract->input.factor_scale_x),
+		(x - 2. - fract->input.factor_shift_x) / (fract->input.factor_scale_x),
+		(x - 3. - fract->input.factor_shift_x) / (fract->input.factor_scale_x));
+	data->cimg  = _mm256_set1_pd(((y) - fract->input.factor_shift_y) / (fract->input.factor_scale_y));
+	data->cx = _mm256_sub_pd(data->creal, _mm256_set1_pd(fract->input.factor_cx));
+	data->cy = _mm256_add_pd(data->cimg, _mm256_set1_pd(fract->input.factor_cy));
+	data->iters_mask = _mm256_set1_pd(0.0);
 }
 
 uint32_t				mandel_avx2(const struct s_fractal *restrict fract,
@@ -61,7 +45,7 @@ uint32_t				mandel_avx2(const struct s_fractal *restrict fract,
 	struct s_avx_data	d;
 
 	d.fractal = fract;
-	mandel_init_registers(&d, pixels, x, y);
+	mandel_init_registers(&d, x, y);
 	while (true)
 	{
 		d.sqr_real = _mm256_mul_pd(d.creal, d.creal);
@@ -76,8 +60,11 @@ uint32_t				mandel_avx2(const struct s_fractal *restrict fract,
 			break ;
 	}
 	_mm256_store_pd(i, d.iters);
-	colorize_pixels(pixels, fract->gradient_map, 4, x + 0, y, (int)i[0], x + 1, y, (int)i[1],
-									x + 2, y, (int)i[2], x + 3, y, (int)i[3]);
+	colorize_pixels(pixels, fract->gradient_map, 4,
+		x + 0, y, (int)i[0],
+		x + 1, y, (int)i[1],
+		x + 2, y, (int)i[2],
+		x + 3, y, (int)i[3]);
 	return (0);
 }
 
@@ -91,14 +78,12 @@ uint32_t				mandel_pixel(const struct s_fractal *restrict fract,
 	uint32_t				iter;
 
 	iter = fract->max_iterations;
-	data.creal = ((float)x - pixels->larger_dimension_half + fract->input.shift_x) /
-		(pixels->larger_dimension_quarter + fract->input.scroll_depth);
-	data.cimg  = ((float)y - pixels->larger_dimension_half + fract->input.shift_y) /
-		(pixels->larger_dimension_quarter + fract->input.scroll_depth);
+	data.creal = ((float)x - fract->input.factor_shift_x) / (fract->input.factor_scale_x);
+	data.cimg  = ((float)y - fract->input.factor_shift_y) / (fract->input.factor_scale_y);
 	data.sqr_real = 0.0;
 	data.sqr_img = 0.0;
-	data.cx = data.creal - (float)(fract->input.mouse_x - pixels->larger_dimension_half) / pixels->width;
-	data.cy = data.cimg + (float)(fract->input.mouse_y - pixels->larger_dimension_half) / pixels->height;
+	data.cx = data.creal - fract->input.factor_cx;
+	data.cy = data.cimg + fract->input.factor_cy;
 	while (iter > 0 && data.sqr_real + data.sqr_img < 4.0)
 	{
 		data.sqr_real = data.creal * data.creal;

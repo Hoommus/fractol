@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/28 20:02:59 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/07 17:28:41 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/07 18:41:13 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ struct s_gradient_point		*grad_create_point(uint32_t color, uint32_t location, u
 	point = ft_memalloc(sizeof(struct s_gradient_point));
 	point->rgba = color;
 	point->location = (double)location / max;
-	rgb2hsvl(color, &(point->hsvl));
+	rgb2hsv(color, &(point->hsvl));
 	printf("%06x - hsv(%f, %f, %f)\n", hsv2rgb(&(point->hsvl)), point->hsvl.h, point->hsvl.s, point->hsvl.v);
 	return (point);
 }
@@ -88,8 +88,8 @@ struct s_gradient			*grad_cache_colors(struct s_gradient *gradient)
 	uint32_t	i;
 	uint32_t	*cache;
 
-	if (gradient->interpolated_colors_cache)
-		ft_memdel((void **)&(gradient->interpolated_colors_cache));
+	if (gradient->colors_cache)
+		ft_memdel((void **)&(gradient->colors_cache));
 	cache = ft_memalloc(sizeof(uint32_t) * gradient->max_iterations + 4);
 	i = 0;
 	while (i < gradient->max_iterations)
@@ -97,8 +97,30 @@ struct s_gradient			*grad_cache_colors(struct s_gradient *gradient)
 		cache[i] = grad_get_iter_color(gradient, i);
 		i++;
 	}
-	gradient->interpolated_colors_cache = cache;
+	gradient->colors_cache = cache;
 	return (gradient);
+}
+
+static struct s_hsv			*inter_linear(const struct s_hsv *restrict left,
+										const struct s_hsv *restrict right,
+										double location,
+										struct s_hsv *result)
+{
+	double		d;
+
+	d = right->h - left->h;
+	if (ABS(d) > 180)
+	{
+		if (d < 0)
+			d += 360.0;
+		result->h = fmod(left->h + d * location, 360.0);
+	}
+	else
+		result->h = left->h + fabs(d) * location;
+	result->h += result->h < 0 ? 360.0 : 0;
+	result->s = left->s + (right->s - left->s) * location;
+	result->v = left->v + (right->v - left->v) * location;
+	return (result);
 }
 
 uint32_t					grad_get_iter_color(struct s_gradient *gradient,
@@ -106,36 +128,17 @@ uint32_t					grad_get_iter_color(struct s_gradient *gradient,
 {
 	double					l;
 	const t_gradient_point	*list = gradient->points_list;
-	struct s_hsv			hsvl_first;
-	struct s_hsv			hsvl_next;
 	struct s_hsv			hsvl_inter;
 
-	if (gradient->interpolated_colors_cache && iteration <= gradient->max_iterations)
-		return (gradient->interpolated_colors_cache[iteration]);
+	if (gradient->colors_cache && iteration <= gradient->max_iterations)
+		return (gradient->colors_cache[iteration]);
 	l = (double)iteration / (double)gradient->max_iterations;
 	while (list && list->next)
 	{
 		if (list->location == l)
-			return (list->rgba);
+			return (hsv2rgb(rgb2hsv(list->rgba, &hsvl_inter)));
 		if (list->next && l > list->location && l <= list->next->location)
-		{
-			hsvl_first = list->hsvl;
-			hsvl_next = list->next->hsvl;
-			double d = hsvl_next.h - hsvl_first.h;
-			if (ABS(d) > 180)
-			{
-				if (d < 0)
-					d += 360.0;
-				hsvl_inter.h = fmod(hsvl_first.h + d * l, 360.0);
-			}
-			else
-				hsvl_inter.h = hsvl_first.h + fabs(d) * l;
-			hsvl_inter.h += hsvl_inter.h < 0 ? 360.0 : 0;
-			hsvl_inter.s = hsvl_first.s + (hsvl_next.s - hsvl_first.s) * l;
-			hsvl_inter.v = hsvl_first.v + (hsvl_next.v - hsvl_first.v) * l;
-			printf("%0.8x hsv(%f, %f, %f)\n", hsv2rgb(&hsvl_inter), hsvl_inter.h, hsvl_inter.s, hsvl_inter.v);
-			return (hsv2rgb(&hsvl_inter));
-		}
+			return (hsv2rgb(inter_linear(&(list->hsvl), &(list->next->hsvl), l, &hsvl_inter)));
 		list = list->next;
 	}
 	if (list == NULL)

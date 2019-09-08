@@ -6,7 +6,7 @@
 #    By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/08/21 13:49:23 by vtarasiu          #+#    #+#              #
-#    Updated: 2019/09/05 12:34:06 by vtarasiu         ###   ########.fr        #
+#    Updated: 2019/09/08 21:36:11 by vtarasiu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ CC = clang
 NAME = fractol
 
 CFLAGS = -mavx -mavx2 -Wall -Wextra -Werror \
-         -g #-O2 #-fsanitize=address
+         -g #-fsanitize=address #
 
 LIB_DIR = lib/
 
@@ -32,15 +32,17 @@ LIBPNG_NAME_DYNAMIC = libspng.dylib
 LIBPNG_PATH = $(LIBPNG_DIR)$(LIBPNG_NAME_STATIC)
 
 FRACTOL_SRC_DIR = src/
-FRACTOL_SRC = main.c \
-              dispatcher.c \
-              mandelbrot.c \
-              game_loop.c \
-              ui_handlers.c \
+FRACTOL_SRC = calculators.c \
               colorizer.c \
+              dispatcher.c \
               gradient_map.c \
+              main.c \
+              mandelbrot.c \
+              mlx_loop.c \
               quit.c \
-              rgb_to_hsv.c
+              rgb_to_hsv.c \
+              sdl_handlers.c \
+              sdl_loop.c
 
 SDL_HEADER_PATH = /Users/vtarasiu/.brew/Cellar/sdl2/2.0.10/include/SDL2/
 SDL_LIB_PATH = /Users/vtarasiu/.brew/Cellar/sdl2/2.0.10/lib/
@@ -59,7 +61,7 @@ INCLUDES = -I include -I $(PRINTF_DIR)/include -I $(LIBFT_DIR) -I $(LIBPNG_DIR) 
            -I $(SDL_TTF_HEADER_PATH) -I $(SDL_HEADER_PATH)
 LIBRARIES = -lft -lftprintf -L$(PRINTF_DIR) -L$(LIBFT_DIR) -L$(LIBPNG_DIR) \
             -framework OpenGL -framework AppKit -L/usr/local/lib/ \
-            -L $(SDL_TTF_LIB_PATH) -L $(SDL_LIB_PATH) -l SDL2 -l SDL2_ttf
+            -L $(SDL_TTF_LIB_PATH) -L $(SDL_LIB_PATH) -l SDL2 -l SDL2_ttf -l mlx
 
 OBJ_DIR = obj/
 OBJ = $(addprefix $(OBJ_DIR), $(FRACTOL_SRC:.c=.o))

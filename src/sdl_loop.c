@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   game_loop.c                                        :+:      :+:    :+:   */
+/*   sdl_loop.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/25 18:58:12 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/07 16:35:05 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/08 17:10:11 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,12 +42,12 @@ static TTF_Font		*choose_font(void)
 	return (NULL);
 }
 
-static void			render_metadata(SDL_Window *window,
-									   __unused struct s_fractal *fractal,
+void			render_metadata(SDL_Window *window,
+									   struct s_fractal *fractal,
 									   struct s_rgba_map __unused *pixels)
 {
 	SDL_Surface			*metadata_surface;
-	SDL_Surface			*gradient_test_surface;
+	char				str[1024];
 
 	if (!g_font)
 		g_font = choose_font();
@@ -56,46 +56,23 @@ static void			render_metadata(SDL_Window *window,
 		dprintf(2, "No font, lol\n");
 		return ;
 	}
+	ft_bzero(str, sizeof(str));
+	snprintf(str, sizeof(str) - 1, " (%d, %d, i = %d)\ncolor: %.8x", fractal->input.mouse_x,
+		fractal->input.mouse_y,
+		pixels->map_metadata[fractal->input.mouse_y * pixels->width + fractal->input.mouse_x].iteration,
+		pixels->map[fractal->input.mouse_y * pixels->width + fractal->input.mouse_x]);
 	TTF_SetFontHinting(g_font, TTF_HINTING_NORMAL);
-	metadata_surface = TTF_RenderText_Blended(g_font, "hello world", (SDL_Color){0xFF, 0xFF, 0xFF, 0});
+	metadata_surface = TTF_RenderText_Blended_Wrapped(g_font, str,
+		(SDL_Color){0xFF, 0xFF, 0xFF, 0}, pixels->width);
 	SDL_BlitSurface(metadata_surface, NULL, SDL_GetWindowSurface(window), NULL);
 	SDL_FreeSurface(metadata_surface);
-	gradient_test_surface = SDL_CreateRGBSurface(0, pixels->width, 50, 32, 0, 0, 0, 0);
-	uint32_t			i;
-
-	i = 0;
-	uint32_t			j = 0;
-
-	while (i < fractal->max_iterations)
-	{
-		((uint32_t *) gradient_test_surface->pixels)[(j)] =
-			grad_get_iter_color(fractal->gradient_map, i);
-		((uint32_t *) gradient_test_surface->pixels)[(j + 1) * pixels->width] =
-			grad_get_iter_color(fractal->gradient_map, i);
-		((uint32_t *) gradient_test_surface->pixels)[(j + 2) * pixels->width] =
-			grad_get_iter_color(fractal->gradient_map, i);
-		((uint32_t *) gradient_test_surface->pixels)[(j + 3) * pixels->width] =
-			grad_get_iter_color(fractal->gradient_map, i);
-		((uint32_t *) gradient_test_surface->pixels)[(j + 4) * pixels->width] =
-			grad_get_iter_color(fractal->gradient_map, i);
-		((uint32_t *) gradient_test_surface->pixels)[(j + 5) * pixels->width] =
-			grad_get_iter_color(fractal->gradient_map, i);
-		((uint32_t *) gradient_test_surface->pixels)[(j + 6) * pixels->width] =
-			grad_get_iter_color(fractal->gradient_map, i);
-		((uint32_t *) gradient_test_surface->pixels)[(j + 7) * pixels->width] =
-			grad_get_iter_color(fractal->gradient_map, i);
-		j = i;
-		i++;
-	}
-	SDL_BlitSurface(gradient_test_surface, NULL, SDL_GetWindowSurface(window), NULL);
-	SDL_FreeSurface(gradient_test_surface);
 }
 
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
 
-noreturn void	game_loop(SDL_Window *window, struct s_fractal *fractal, struct s_rgba_map *pixels)
+noreturn void	sdl_game_loop(SDL_Window *window, struct s_fractal *fractal, struct s_rgba_map *pixels)
 {
 	uint32_t	ret;
 	bool		is_avx;
