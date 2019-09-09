@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/25 18:59:12 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/08 14:02:44 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/09 19:05:11 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,14 +61,6 @@ typedef struct		s_fractal
 	struct s_rgba_map	*source;
 }					t_fractal;
 
-typedef struct		s_color
-{
-	uint8_t		r;
-	uint8_t		g;
-	uint8_t		b;
-	uint8_t		a;
-}					t_color;
-
 struct				s_command
 {
 	const char			*name;
@@ -95,22 +87,22 @@ struct				s_rgba_map
 
 enum				e_color
 {
-	COLOR_WHITE  = 0xFFFFFF00,
-	COLOR_100_BLACK  = 0x00000000,
-	COLOR_RED    = 0xFF000000,
-	COLOR_GREEN  = 0x00FF0000,
-	COLOR_BLUE   = 0x0000FF00,
-	COLOR_YELLOW = 0x00FFFF00,
-	COLOR_CHAOS_BLACK = 0x00152200,
-	COLOR_ULTRAMARINE = 0x120A8F00,
-	COLOR_ULTRAMARINES_BLUE = 0x0066B300,
-	COLOR_GOLDEN_YELLOW = 0xFFC20E00,
-	COLOR_MACHARIUS_SOLAR_ORANGE = 0xB9402300,
-	COLOR_BLOOD_RED = 0xD2223E00,
-	COLOR_DARK_ANGEL_GREEN = 0x19553C00,
-	COLOR_HAWK_TURQUOISE = 0x00819400,
-	COLOR_LICHE_PURPLE = 0x2C2D8B00,
-	COLOR_WARLOCK_PURPLE = 0xA43E8B00,
+	COLOR_WHITE  = 0x00FFFFFF,
+	COLOR_100_BLACK  = 0x0,
+	COLOR_RED    = 0xFF0000,
+	COLOR_GREEN  = 0x00FF00,
+	COLOR_BLUE   = 0x0000FF,
+	COLOR_YELLOW = 0xFFFF00,
+	COLOR_CHAOS_BLACK = 0x001522,
+	COLOR_ULTRAMARINE = 0x120A8F,
+	COLOR_ULTRAMARINES_BLUE = 0x0066B3,
+	COLOR_GOLDEN_YELLOW = 0xFFC20E,
+	COLOR_MACHARIUS_SOLAR_ORANGE = 0xB94023,
+	COLOR_BLOOD_RED = 0xD2223E,
+	COLOR_DARK_ANGEL_GREEN = 0x19553C,
+	COLOR_HAWK_TURQUOISE = 0x008194,
+	COLOR_LICHE_PURPLE = 0x2C2D8B,
+	COLOR_WARLOCK_PURPLE = 0xA43E8B,
 };
 
 #endif

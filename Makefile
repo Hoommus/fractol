@@ -6,7 +6,7 @@
 #    By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/08/21 13:49:23 by vtarasiu          #+#    #+#              #
-#    Updated: 2019/09/08 21:36:11 by vtarasiu         ###   ########.fr        #
+#    Updated: 2019/09/09 19:23:15 by vtarasiu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ CC = clang
 NAME = fractol
 
 CFLAGS = -mavx -mavx2 -Wall -Wextra -Werror \
-         -g #-fsanitize=address #
+         -g -O2 #-fsanitize=address #
 
 LIB_DIR = lib/
 
@@ -136,7 +136,6 @@ fclean: clean
 lclean:
 	make -C $(LIBFT_DIR)/ fclean
 	make -C $(PRINTF_DIR)/ fclean
-	make -C $(LIBPNG_DIR)/ clean
 
 re: fclean lclean all
 

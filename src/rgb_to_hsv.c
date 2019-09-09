@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/02 16:55:22 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/08 16:40:17 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/09 19:15:41 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "fractol_common.h"
 #include "fractol_gradients.h"
 
-static inline float	max(float a, float b, float c)
+static inline double	max(double a, double b, double c)
 {
 	if (a > b)
 		return (a > c ? a : c);
@@ -23,7 +23,7 @@ static inline float	max(float a, float b, float c)
 	return (c > b ? c : b);
 }
 
-static inline float	min(float a, float b, float c)
+static inline double	min(double a, double b, double c)
 {
 	if (a < b)
 		return (a < c ? a : c);
@@ -32,17 +32,17 @@ static inline float	min(float a, float b, float c)
 	return (c < b ? c : b);
 }
 
-struct s_hsv		*rgb2hsv(uint32_t rgba, struct s_hsv *restrict dst)
+struct s_hsv		*rgb2hsv(uint32_t argb, struct s_hsv *restrict dst)
 {
-	const double	r = ((double)((rgba & 0xFF000000U) >> 24U)) / 255.0f;
-	const double	g = ((double)((rgba & 0x00FF0000U) >> 16U)) / 255.0f;
-	const double	b = ((double)((rgba & 0x0000FF00U) >> 8U)) / 255.0f;
+	const double	r = ((double)((argb & 0x00FF0000U) >> 16U)) / 255.0f;
+	const double	g = ((double)((argb & 0x0000FF00U) >> 8U)) / 255.0f;
+	const double	b = ((double)((argb & 0x000000FFU))) / 255.0f;
 	double			max_color;
 	double			min_color;
 
 	max_color = max(r, g, b);
 	min_color = min(r, g, b);
-	if (max_color == min_color)
+	if (max_color == min_color && r == g && r == b)
 		dst->h = 0;
 	else if (max_color == r)
 		dst->h = 60. * ((g - b) / (max_color - min_color));
@@ -58,30 +58,26 @@ struct s_hsv		*rgb2hsv(uint32_t rgba, struct s_hsv *restrict dst)
 	else
 		dst->s = (max_color - min_color) / max_color;
 	dst->v = max_color;
+	printf("rgba (%.8x) hsv(%.2lf, %.2lf, %.2lf)\n", argb, dst->h, dst->s, dst->v);
 	return (dst);
 }
-
-union			color
-{
-	uint8_t		bytes[4];
-	uint32_t	integer;
-};
 
 static inline uint32_t	get_rgba(double r, double g, double b)
 {
 	uint8_t		bytes[4];
-//	union color	c;
 
-	bytes[3] = (uint8_t)round(r * 255.);
+	bytes[1] = (uint8_t)round(r * 255.);
 	bytes[2] = (uint8_t)round(g * 255.);
-	bytes[1] = (uint8_t)round(b * 255.);
+	bytes[3] = (uint8_t)round(b * 255.);
 	bytes[0] = 0;
-	printf("r: %.2x g: %.2x b: %.2x; all: %.8x\n",
-		bytes[0],
+	printf("rgb(%.2x, %.2x, %.2x) argb hex: %.8x argb hex alt: %.8x\n"
+		"%d == %d\n",
 		bytes[1],
 		bytes[2],
-		   *((uint32_t *)bytes));
-	return (*((uint32_t *)bytes) >> 8U);
+		bytes[3],
+		*((uint32_t *)bytes), bytes[1] << 16 | bytes[2] << 8 | bytes[3],
+		__builtin_bswap32(*((uint32_t *)bytes)), bytes[1] << 16 | bytes[2] << 8 | bytes[3]);
+	return (__builtin_bswap32(*((uint32_t *)bytes)));
 }
 
 uint32_t			hsv2rgb(const struct s_hsv *restrict hsv)
@@ -91,7 +87,10 @@ uint32_t			hsv2rgb(const struct s_hsv *restrict hsv)
 	const double		x = c * (1 - fabs(fmod(sector, 2.0f) - 1));
 	const double		m = hsv->v * (1 - hsv->s);
 
+	assert(hsv->s >= 0. && hsv->s <= 1.);
+	assert(hsv->v >= 0. && hsv->v <= 1.);
 	assert(hsv->h >= 0. && hsv->h <= 360.);
+	printf("hsv(%.2lf, %.2lf, %.2lf) ", hsv->h, hsv->s, hsv->v);
 	if (sector < 0)
 		return (get_rgba(m, m, m));
 	else if (sector <= 1)

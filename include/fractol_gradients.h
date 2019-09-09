@@ -6,13 +6,14 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/01 12:38:28 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/07 18:08:19 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/09 14:14:50 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FRACTOL_GRADIENTS_H
 # define FRACTOL_GRADIENTS_H
 
+#include <SDL_pixels.h>
 #include "fractol_data.h"
 
 enum				e_gradient_type
@@ -28,12 +29,12 @@ typedef struct		s_hsv
 	float	h;
 	float	s;
 	float	v;
-}					t_hsvl_color;
+}					t_hsv_color;
 
 typedef struct		s_gradient_point
 {
 	uint32_t				rgba;
-	t_hsvl_color			hsvl;
+	t_hsv_color				hsv;
 	uint32_t				iteration;
 	uint8_t					opacity;
 	double					location;
@@ -51,7 +52,7 @@ struct				s_gradient
 	t_gradient_point		*points_list;
 };
 
-struct s_hsv		*rgb2hsv(uint32_t rgba, struct s_hsv *restrict dst);
+struct s_hsv		*rgb2hsv(uint32_t argb, struct s_hsv *restrict dst);
 uint32_t			hsv2rgb(const struct s_hsv *restrict hsv);
 
 t_gradient_point	*grad_create_point_for(struct s_gradient *gradient,

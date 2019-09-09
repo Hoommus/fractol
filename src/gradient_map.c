@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/28 20:02:59 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/07 18:41:13 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/09 17:09:20 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@ struct s_gradient_point		*grad_create_point(uint32_t color, uint32_t location, u
 	point = ft_memalloc(sizeof(struct s_gradient_point));
 	point->rgba = color;
 	point->location = (double)location / max;
-	rgb2hsv(color, &(point->hsvl));
-	printf("%06x - hsv(%f, %f, %f)\n", hsv2rgb(&(point->hsvl)), point->hsvl.h, point->hsvl.s, point->hsvl.v);
+	rgb2hsv(color, &(point->hsv));
+	printf("%06x - hsv(%f, %f, %f)\n", hsv2rgb(&(point->hsv)), point->hsv.h, point->hsv.s, point->hsv.v);
 	return (point);
 }
 
@@ -113,10 +113,12 @@ static struct s_hsv			*inter_linear(const struct s_hsv *restrict left,
 	{
 		if (d < 0)
 			d += 360.0;
-		result->h = fmod(left->h + d * location, 360.0);
+		result->h = left->h + d * location;
 	}
+	else if (right->h != 0 && right->s != 0 && right->v != 0)
+		result->h = left->h + d * location;
 	else
-		result->h = left->h + fabs(d) * location;
+		result->h = left->h;
 	result->h += result->h < 0 ? 360.0 : 0;
 	result->s = left->s + (right->s - left->s) * location;
 	result->v = left->v + (right->v - left->v) * location;
@@ -138,7 +140,7 @@ uint32_t					grad_get_iter_color(struct s_gradient *gradient,
 		if (list->location == l)
 			return (hsv2rgb(rgb2hsv(list->rgba, &hsvl_inter)));
 		if (list->next && l > list->location && l <= list->next->location)
-			return (hsv2rgb(inter_linear(&(list->hsvl), &(list->next->hsvl), l, &hsvl_inter)));
+			return (hsv2rgb(inter_linear(&(list->hsv), &(list->next->hsv), l, &hsvl_inter)));
 		list = list->next;
 	}
 	if (list == NULL)
