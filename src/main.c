@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 14:36:20 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/08 16:46:03 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/12 20:07:49 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,25 +14,28 @@
 
 /*
 ** TODO: add flags:
-**  -h, --help         - print the following message
-**  -q, --quiet        - no GUI mode
+**  -h, --help         - print the following message and exit
+**  -q, --quiet        - no GUI mode, just output to a file
 **  -i, --input        - input file name (.png). If not specified, only one file
 **                       with bare fractal set will be generated.
-**                       Otherwise, there will me `-pattern.png' file with applied
+**                       Otherwise, there will be `-pattern.png' file with applied
 **                       input bitmap.
 **  -o, --output       - output file name. Always `.png' even if other format
 **                       specified
+**  -j [number]        - compute fractal on CPU in parallel with a [number] of thread.
+**                       Overrides --avx.
+**  -j=[number]
 **  -n [string],       - use specified fractal.
 **  --name [string]
 **  --software-render (?)  - use software renderers in SDL
-**  --avx=[true|false] - use AVX and AVX2 instructions, if possible. Emits error
+**  --avx              - use AVX and AVX2 instructions, if possible. Emits error
 **                       message, if it isn't possible and runs in a classic way.
 **                       Defaults to `true'.
-**  --opencl=[true|false] - use OpenCL, if possible. Emits error
-**                          message, if it isn't possible and runs in a classic way.
-**                          Defaults to `false'.
+**  --opencl           - use OpenCL, if possible. Emits error message,
+**                       if it isn't possible and runs in a classic way.
+**                       Overrides --avx and -j
 **  --cuda              - use Nvidia CUDA, if available. Emits error message
-**                        if it isn't possible
+**                        if it isn't possible. Overrides --opencl and -j
 **  --gpu=[device name] - use specified device while calculating fractal.
 **                        Silently sets --opencl to `true'
 **  --gradient [color1, location1, color2, location2, ...] - specify gradient
@@ -52,7 +55,7 @@
 int		main(int argc, const char **argv)
 {
 	if (argc == 1)
-		ft_printf("usage:\nfractol [fractal name]\n");
+		return ((ft_dprintf(2, "usage: fractol [-j] fractal_name\n") & 0) | 1);
 	dispatch(argv + 1);
 	return (0);
 }

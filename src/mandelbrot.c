@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/22 18:46:14 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/08 15:34:12 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/09 20:25:16 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 #include "ft_printf.h"
 
 #define SET1(a)   _mm256_set1_pd((a))
-#define SUB(a, b) _mm256_sub_pd((a), (b))
-#define ADD(a, b) _mm256_add_pd((a), (b))
 
 static inline void	mandel_init_registers(struct s_avx_data *restrict data,
 										uint32_t x,

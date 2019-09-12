@@ -46,9 +46,7 @@ struct				s_gradient
 	bool					is_reverse;
 	enum e_gradient_type	type;
 	uint32_t				max_iterations;
-	uint32_t				points_quantity;
 	uint32_t				*colors_cache;
-	t_gradient_point		**points_array;
 	t_gradient_point		*points_list;
 };
 

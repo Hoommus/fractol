@@ -6,7 +6,7 @@
 #    By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/08/21 13:49:23 by vtarasiu          #+#    #+#              #
-#    Updated: 2019/09/09 19:23:15 by vtarasiu         ###   ########.fr        #
+#    Updated: 2019/09/12 19:55:25 by vtarasiu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ CC = clang
 NAME = fractol
 
 CFLAGS = -mavx -mavx2 -Wall -Wextra -Werror \
-         -g -O2 #-fsanitize=address #
+         -g -O2 -fsanitize=address #
 
 LIB_DIR = lib/
 
@@ -77,7 +77,7 @@ $(NAME): $(OBJ)
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJ) -I $(INCLUDE) $(LIBRARIES)
 
 # TODO: add header dependencies
-$(OBJ_DIR)%.o: $(FRACTOL_SRC_DIR)%.c $(LIBPNG_PATH) $(LIBFT_PATH) $(PRINTF_PATH) #| $(OBJ_DIR)
+$(OBJ_DIR)%.o: $(FRACTOL_SRC_DIR)%.c $(LIBPNG_PATH) $(LIBFT_PATH) $(PRINTF_PATH) $(addprefix include/, $(HEADERS)) | $(OBJ_DIR)
 	@if ! [ -d $(OBJ_DIR) ] ; then \
         mkdir -p $(OBJ_DIR) ; \
     fi

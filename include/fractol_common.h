@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 22:09:50 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/08 18:37:02 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/12 16:17:08 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,13 +27,15 @@
 # include <SDL.h>
 # include <SDL_ttf.h>
 
+# include <pthread.h>
+
 #define UI_FEEDBACK_REDRAW       0x0001U
 #define UI_FEEDBACK_AVX          0x0002U
 #define UI_FEEDBACK_NEUTRAL      0x0100U
 #define UI_FEEDBACK_MOUSE_DOWN   0x0010U
-#define UI_FEEDBACK_MOUSE_UP     0x0010U
+#define UI_FEEDBACK_MOUSE_UP     0x0020U
 
-int dispatch(const char **argv);
+int					dispatch(const char **argv);
 uint32_t			poll_events(SDL_Window *window,
 								struct s_fractal *fractal,
 								struct s_rgba_map *pixels);

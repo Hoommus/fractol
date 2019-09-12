@@ -73,7 +73,6 @@ struct s_gradient			*grad_create_from(enum e_gradient_type type,
 	gradient = ft_memalloc(sizeof(struct s_gradient));
 	gradient->type = type;
 	gradient->max_iterations = max_iterations;
-	gradient->points_quantity = points_quantity;
 	while (points_quantity)
 	{
 		grad_create_point_for(gradient, va_arg(args, uint32_t), va_arg(args, uint32_t));

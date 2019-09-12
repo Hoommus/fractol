@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/28 19:38:52 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/09 13:13:14 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/12 20:10:08 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@ void		colorize_pixels(struct s_rgba_map *restrict pixels,
 							...)
 {
 	int			i;
-	uint32_t	x;
-	uint32_t	y;
+	int32_t		x;
+	int32_t		y;
 	uint32_t	iteration;
 	va_list		args;
 
@@ -34,9 +34,11 @@ void		colorize_pixels(struct s_rgba_map *restrict pixels,
 	i = 0;
 	while (i < arg_points)
 	{
-		x = va_arg(args, uint32_t);
-		y = va_arg(args, uint32_t);
+		x = va_arg(args, int32_t);
+		y = va_arg(args, int32_t);
 		iteration = va_arg(args, int);
+		if (y * pixels->width + x == pixels->height * pixels->width)
+			break ;
 		if (gradient_map && gradient_map->colors_cache)
 			pixels->map[y * pixels->width + x] =
 				gradient_map->colors_cache[gradient_map->is_reverse

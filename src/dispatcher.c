@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 21:52:16 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/09 19:22:52 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/12 16:11:57 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ static inline struct s_rgba_map	*init_common(struct s_fractal *fractal)
 	fractal->max_iterations = 100;
 	fractal->gradient_map = grad_create_from(GRADIENT_LINEAR, fractal->max_iterations,
 		4,
-	COLOR_GOLDEN_YELLOW, 0, COLOR_HAWK_TURQUOISE, 20, COLOR_GOLDEN_YELLOW, 40, COLOR_ULTRAMARINE, fractal->max_iterations);
+	COLOR_GOLDEN_YELLOW, 0, COLOR_WARLOCK_PURPLE, 30, COLOR_BLOOD_RED, 70, COLOR_ULTRAMARINE, fractal->max_iterations);
 	fractal->gradient_map->is_reverse = false;
 	grad_cache_colors(fractal->gradient_map);
 	return (pixels);
@@ -79,7 +79,8 @@ int								forknrun_sdl(const struct s_command *cmd)
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		pixels->width,
-		pixels->height, SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+		pixels->height,
+		SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if (window == NULL)
 		exit(ft_dprintf(2, "window is null\n"));
 	SDL_UpdateWindowSurface(window);

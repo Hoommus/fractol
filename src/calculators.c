@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/08 14:19:03 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/08 16:17:28 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/12 19:54:47 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,14 @@ void	precalculate_factors(struct s_fractal *fractal, struct s_rgba_map *pixels)
 	pixels->larger_dimension = pixels->width > pixels->height ? pixels->width : pixels->height;
 	pixels->larger_dimension_half = pixels->larger_dimension / 2.0;
 	pixels->larger_dimension_quarter = pixels->larger_dimension / 4.0;
-	fractal->input.factor_cx = (fractal->input.mouse_x - pixels->larger_dimension_half) / pixels->width;
-	fractal->input.factor_cy = (fractal->input.mouse_y - pixels->larger_dimension_half) / pixels->height;
+	fractal->input.factor_cx = (fractal->input.mouse_cx - pixels->larger_dimension_half) / pixels->width;
+	fractal->input.factor_cy = (fractal->input.mouse_cy - pixels->larger_dimension_half) / pixels->height;
 	fractal->input.factor_scale_x = pixels->larger_dimension_quarter + fractal->input.scroll_depth;
 	fractal->input.factor_scale_y = fractal->input.factor_scale_x;
 	fractal->input.factor_shift_x = pixels->larger_dimension_half + fractal->input.shift_x;
 	fractal->input.factor_shift_y = pixels->larger_dimension_half + fractal->input.shift_y;
+	fractal->input.factor_cx /= ceil(fractal->input.factor_scale_x / 1000.0);
+	fractal->input.factor_cy /= ceil(fractal->input.factor_scale_y / 1000.0);
 }
 
 void	calculate_fractal_avx(struct s_fractal *fractal,

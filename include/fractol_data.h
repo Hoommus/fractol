@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/25 18:59:12 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/09 19:05:11 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/12 20:05:26 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,6 @@
 # include <stddef.h>
 # include <stdbool.h>
 # include "fractol_gradients.h"
-
-# define COLOR_RED_MASK   0xFF000000U
-# define COLOR_GREEN_MASK 0x00FF0000U
-# define COLOR_BLUE_MASK  0x0000FF00U
-# define COLOR_ALPHA_MASK 0x000000FFU
 
 struct				s_fractal;
 struct				s_rgba_map;
@@ -43,6 +38,9 @@ typedef struct		s_fractal
 		bool		locked;
 		int			mouse_x;
 		int			mouse_y;
+
+		int			mouse_cx;
+		int			mouse_cy;
 
 		double		shift_x;
 		double		shift_y;
@@ -74,8 +72,8 @@ struct				s_pixel_meta
 
 struct				s_rgba_map
 {
-	short				width;
-	short				height;
+	int					width;
+	int					height;
 
 	short				larger_dimension;
 	float				larger_dimension_half;
@@ -83,7 +81,7 @@ struct				s_rgba_map
 
 	uint32_t			*map;
 	struct s_pixel_meta	*map_metadata;
-} __attribute__((aligned(32)));
+};
 
 enum				e_color
 {

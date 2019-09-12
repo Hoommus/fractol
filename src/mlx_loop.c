@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/08 17:11:15 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/09 13:01:35 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/11 17:54:31 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,10 +37,11 @@ int				iterations_hook(int scancode, void *param)
 {
 	const struct s_mlx_crutch	*crutch = param;
 
-	if (scancode == 27)
-		crutch->fractal->max_iterations--;
-	if (scancode == 24)
-		crutch->fractal->max_iterations++;
+	if (scancode == 27 || scancode == 24)
+	{
+		crutch->fractal->max_iterations += scancode == 27 ? -1 : 1;
+		grad_cache_colors(crutch->fractal->gradient_map);
+	}
 	if (scancode == 15)
 		crutch->fractal->gradient_map->is_reverse = !crutch->fractal->gradient_map->is_reverse;
 	put_image(param);
