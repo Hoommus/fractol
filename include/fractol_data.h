@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/25 18:59:12 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/12 20:05:26 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/16 13:34:43 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,12 +35,19 @@ typedef struct		s_fractal
 
 	struct				s_input
 	{
+		bool		is_avx;
 		bool		locked;
 		int			mouse_x;
 		int			mouse_y;
 
 		int			mouse_cx;
 		int			mouse_cy;
+
+		double		x_min;
+		double		y_min;
+
+		double		x_max;
+		double		y_max;
 
 		double		shift_x;
 		double		shift_y;

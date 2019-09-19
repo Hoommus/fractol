@@ -27,8 +27,6 @@
 # include <SDL.h>
 # include <SDL_ttf.h>
 
-# include <pthread.h>
-
 #define UI_FEEDBACK_REDRAW       0x0001U
 #define UI_FEEDBACK_AVX          0x0002U
 #define UI_FEEDBACK_NEUTRAL      0x0100U

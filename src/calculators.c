@@ -6,10 +6,11 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/08 14:19:03 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/12 19:54:47 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/19 21:17:29 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <fractol_tpool.h>
 #include "fractol_common.h"
 
 void	precalculate_factors(struct s_fractal *fractal, struct s_rgba_map *pixels)
@@ -17,6 +18,10 @@ void	precalculate_factors(struct s_fractal *fractal, struct s_rgba_map *pixels)
 	pixels->larger_dimension = pixels->width > pixels->height ? pixels->width : pixels->height;
 	pixels->larger_dimension_half = pixels->larger_dimension / 2.0;
 	pixels->larger_dimension_quarter = pixels->larger_dimension / 4.0;
+	fractal->input.x_min = fractal->input.factor_shift_x / fractal->input.factor_scale_x;
+	fractal->input.x_max = (pixels->width - fractal->input.factor_shift_x) / fractal->input.factor_scale_x;
+	fractal->input.y_min = fractal->input.factor_shift_y / fractal->input.factor_scale_y;
+	fractal->input.y_max = (pixels->height - fractal->input.factor_shift_x) / fractal->input.factor_scale_x;
 	fractal->input.factor_cx = (fractal->input.mouse_cx - pixels->larger_dimension_half) / pixels->width;
 	fractal->input.factor_cy = (fractal->input.mouse_cy - pixels->larger_dimension_half) / pixels->height;
 	fractal->input.factor_scale_x = pixels->larger_dimension_quarter + fractal->input.scroll_depth;
@@ -57,7 +62,7 @@ void	calculate_fractal_avx(struct s_fractal *fractal,
 }
 
 void	calculate_fractal(struct s_fractal *fractal,
-		struct s_rgba_map *pixels, void *display_pixels)
+	struct s_rgba_map *pixels, void *display_pixels)
 {
 	static struct s_fractal	*current;
 	const t_fract_calc		func = current ? current->calculator : NULL;
@@ -77,6 +82,39 @@ void	calculate_fractal(struct s_fractal *fractal,
 		while (++y < pixels->height)
 			func(current, pixels, x, y);
 	}
+	__builtin_memcpy(display_pixels, pixels->map,
+					 pixels->height * pixels->width * sizeof(uint32_t));
+}
+
+void	calculate_fractal_threaded(struct s_fractal *fractal,
+									struct s_rgba_map *pixels,
+									void *display_pixels,
+									uint32_t threads_quantity)
+{
+	static struct s_fractal	*current;
+	static t_fract_calc		func;
+	uint32_t				region_start;
+	uint32_t				region_size;
+	uint32_t				total_size;
+
+	if (current != fractal)
+	{
+		current = fractal;
+		func = current->calculator;
+	}
+	region_start = 0;
+	region_size = pixels->height * pixels->width / threads_quantity;
+	total_size = pixels->height * pixels->width;
+	precalculate_factors(fractal, pixels);
+	while (region_start < total_size)
+	{
+		if (total_size - region_start < region_size)
+			tpool_add_task(&(t_task) {fractal, pixels, region_start, total_size - region_start, false});
+		else
+			tpool_add_task(&(t_task) {fractal, pixels, region_start, region_size, false});
+		region_start += region_size;
+	}
+	tpool_wait();
 	__builtin_memcpy(display_pixels, pixels->map,
 					 pixels->height * pixels->width * sizeof(uint32_t));
 }

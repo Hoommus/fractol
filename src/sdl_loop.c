@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/25 18:58:12 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/12 20:15:31 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/19 20:51:14 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,14 +35,14 @@ static TTF_Font		*choose_font(void)
 	while (g_font_names[i])
 	{
 		if (access(g_font_names[i], F_OK | R_OK) == 0 &&
-			(font = TTF_OpenFont(g_font_names[i], 16)))
+			(font = TTF_OpenFont(g_font_names[i], 14)))
 			return (font);
 		i++;
 	}
 	return (NULL);
 }
 
-void			render_metadata(SDL_Window *window,
+void				render_metadata(SDL_Window *window,
 									   struct s_fractal *fractal,
 									   struct s_rgba_map __unused *pixels)
 {
@@ -66,16 +66,16 @@ void			render_metadata(SDL_Window *window,
 		pixels->map_metadata[fractal->input.mouse_y * pixels->width + fractal->input.mouse_x].iteration,
 		pixels->map[fractal->input.mouse_y * pixels->width + fractal->input.mouse_x],
 		fractal->input.scroll_depth,
-		fractal->input.factor_shift_x / fractal->input.factor_scale_x,
-		(pixels->width - fractal->input.factor_shift_x) / fractal->input.factor_scale_x,
-		fractal->input.factor_shift_y / fractal->input.factor_scale_y,
-		(pixels->height - fractal->input.factor_shift_y) / fractal->input.factor_scale_y,
+		fractal->input.x_min,
+		fractal->input.x_max,
+		fractal->input.y_min,
+		fractal->input.y_max,
 		fractal->input.factor_cx,
 		fractal->input.factor_cy);
 	TTF_SetFontHinting(g_font, TTF_HINTING_NORMAL);
 	metadata_surface = TTF_RenderText_Blended_Wrapped(g_font, str,
 		(SDL_Color){0xFF, 0xFF, 0xFF, 0}, pixels->width / 3);
-	rect = (SDL_Rect){0, 0, pixels->width / 3, metadata_surface->h + 10};
+	rect = (SDL_Rect){0, 0, pixels->width / 4, metadata_surface->h + 10};
 	SDL_FillRect(SDL_GetWindowSurface(window), &rect, 0x88000000);
 	SDL_BlitSurface(metadata_surface, NULL, SDL_GetWindowSurface(window), NULL);
 	SDL_FreeSurface(metadata_surface);
@@ -87,30 +87,32 @@ void			render_metadata(SDL_Window *window,
 noreturn void	sdl_game_loop(SDL_Window *window, struct s_fractal *fractal, struct s_rgba_map *pixels)
 {
 	uint32_t	ret;
-	bool		is_avx;
 
-	is_avx = true;
+	fractal->input.is_avx = true;
 	while (true)
 	{
 		ret = poll_events(window, fractal, pixels);
 		if ((ret & UI_FEEDBACK_REDRAW))
 		{
 			if ((ret & UI_FEEDBACK_AVX))
-				is_avx = !is_avx;
+				fractal->input.is_avx = !fractal->input.is_avx;
 			struct timeval	start;
 			struct timeval	end;
 			gettimeofday(&start, NULL);
 			if (!fractal->input.locked)
 			{
-				if (is_avx)
-					calculate_fractal_avx(fractal, pixels, SDL_GetWindowSurface(window)->pixels);
-				else
-					calculate_fractal(fractal, pixels, SDL_GetWindowSurface(window)->pixels);
+				calculate_fractal_threaded(fractal, pixels, SDL_GetWindowSurface(window)->pixels, 16);
+//				if (fractal->input.is_avx)
+//					calculate_fractal_avx(fractal, pixels, SDL_GetWindowSurface(window)->pixels);
+//				else
+//					calculate_fractal(fractal, pixels, SDL_GetWindowSurface(window)->pixels);
 			}
 			render_metadata(window, fractal, pixels);
 			SDL_UpdateWindowSurface(window);
 			gettimeofday(&end, NULL);
-			printf("%s: %ld s %d us\n", is_avx ? "avx" : "classic", end.tv_sec - start.tv_sec, abs(end.tv_usec - start.tv_usec));
+			printf("%s: %ld s %d us\n",
+				fractal->input.is_avx ? "avx" : "classic",
+				end.tv_sec - start.tv_sec, abs(end.tv_usec - start.tv_usec));
 		}
 		SDL_Delay(16);
 	}

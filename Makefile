@@ -6,7 +6,7 @@
 #    By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/08/21 13:49:23 by vtarasiu          #+#    #+#              #
-#    Updated: 2019/09/12 19:55:25 by vtarasiu         ###   ########.fr        #
+#    Updated: 2019/09/19 17:01:23 by vtarasiu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ CC = clang
 NAME = fractol
 
 CFLAGS = -mavx -mavx2 -Wall -Wextra -Werror \
-         -g -O2 -fsanitize=address #
+         -g -O2 #-fsanitize=address #
 
 LIB_DIR = lib/
 
@@ -42,7 +42,8 @@ FRACTOL_SRC = calculators.c \
               quit.c \
               rgb_to_hsv.c \
               sdl_handlers.c \
-              sdl_loop.c
+              sdl_loop.c \
+              thread_pool.c
 
 SDL_HEADER_PATH = /Users/vtarasiu/.brew/Cellar/sdl2/2.0.10/include/SDL2/
 SDL_LIB_PATH = /Users/vtarasiu/.brew/Cellar/sdl2/2.0.10/lib/
@@ -61,7 +62,8 @@ INCLUDES = -I include -I $(PRINTF_DIR)/include -I $(LIBFT_DIR) -I $(LIBPNG_DIR) 
            -I $(SDL_TTF_HEADER_PATH) -I $(SDL_HEADER_PATH)
 LIBRARIES = -lft -lftprintf -L$(PRINTF_DIR) -L$(LIBFT_DIR) -L$(LIBPNG_DIR) \
             -framework OpenGL -framework AppKit -L/usr/local/lib/ \
-            -L $(SDL_TTF_LIB_PATH) -L $(SDL_LIB_PATH) -l SDL2 -l SDL2_ttf -l mlx
+            -L $(SDL_TTF_LIB_PATH) -L $(SDL_LIB_PATH) -l SDL2 -l SDL2_ttf -l mlx \
+            -l pthread
 
 OBJ_DIR = obj/
 OBJ = $(addprefix $(OBJ_DIR), $(FRACTOL_SRC:.c=.o))

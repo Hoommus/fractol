@@ -83,6 +83,7 @@ int								forknrun_sdl(const struct s_command *cmd)
 		SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if (window == NULL)
 		exit(ft_dprintf(2, "window is null\n"));
+	calculate_fractal(&fractal, pixels, SDL_GetWindowSurface(window)->pixels);
 	SDL_UpdateWindowSurface(window);
 	sdl_game_loop(window, &fractal, pixels);
 	return (0);

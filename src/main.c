@@ -6,10 +6,11 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 14:36:20 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/12 20:07:49 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/18 17:50:26 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "fractol_tpool.h"
 #include "fractol_common.h"
 
 /*
@@ -56,6 +57,7 @@ int		main(int argc, const char **argv)
 {
 	if (argc == 1)
 		return ((ft_dprintf(2, "usage: fractol [-j] fractal_name\n") & 0) | 1);
+	tpool_init(THREAD_POOL_CAPACITY); // TODO: replace with -j option argument
 	dispatch(argv + 1);
 	return (0);
 }

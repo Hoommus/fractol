@@ -65,9 +65,16 @@ void			colorize_pixels(struct s_rgba_map *pixels,
 								...);
 
 void			calculate_fractal_avx(struct s_fractal *fractal,
-				struct s_rgba_map *pixels, void *display_pixels);
-void			calculate_fractal(struct s_fractal *fractal,
-				struct s_rgba_map *pixels, void *display_pixels);
+									struct s_rgba_map *pixels,
+									void *display_pixels);
 
+void			calculate_fractal(struct s_fractal *fractal,
+									struct s_rgba_map *pixels,
+									void *display_pixels);
+
+void			calculate_fractal_threaded(struct s_fractal *fractal,
+											struct s_rgba_map *pixels,
+											void *display_pixels,
+											uint32_t threads_quantity);
 
 #endif
