@@ -6,13 +6,14 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/25 18:58:12 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/19 20:51:14 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/20 15:22:49 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractol_common.h"
 #include "fractol_data.h"
 #include "fractals.h"
+#include "fractol_tpool.h"
 #include <stdnoreturn.h>
 #include <time.h>
 #include <sys/time.h>
@@ -101,7 +102,7 @@ noreturn void	sdl_game_loop(SDL_Window *window, struct s_fractal *fractal, struc
 			gettimeofday(&start, NULL);
 			if (!fractal->input.locked)
 			{
-				calculate_fractal_threaded(fractal, pixels, SDL_GetWindowSurface(window)->pixels, 16);
+				calculate_fractal_threaded(fractal, pixels, SDL_GetWindowSurface(window)->pixels, THREAD_POOL_CAPACITY);
 //				if (fractal->input.is_avx)
 //					calculate_fractal_avx(fractal, pixels, SDL_GetWindowSurface(window)->pixels);
 //				else

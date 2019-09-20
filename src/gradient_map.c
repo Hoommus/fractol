@@ -22,7 +22,6 @@ struct s_gradient_point		*grad_create_point(uint32_t color, uint32_t location, u
 	point->rgba = color;
 	point->location = (double)location / max;
 	rgb2hsv(color, &(point->hsv));
-	printf("%06x - hsv(%f, %f, %f)\n", hsv2rgb(&(point->hsv)), point->hsv.h, point->hsv.s, point->hsv.v);
 	return (point);
 }
 

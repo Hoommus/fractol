@@ -19,7 +19,7 @@
 
 
 #ifndef THREAD_POOL_CAPACITY
-# define THREAD_POOL_CAPACITY 8
+# define THREAD_POOL_CAPACITY 4
 #endif
 
 typedef struct		s_task

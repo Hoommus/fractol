@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/13 13:24:48 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/19 22:11:55 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/20 15:18:37 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,27 +38,25 @@ void						*tpool_routine(void *arg)
 			pthread_mutex_unlock(&g_tpool->job_mutex);
 			continue ;
 		}
-		ft_dprintf(2, "got a job for region at %d \n", task->region_start);
-		pthread_mutex_unlock(&g_tpool->job_mutex);
 		point = task->region_start;
+		pthread_mutex_unlock(&g_tpool->job_mutex);
 		while (point < task->region_start + task->region_length)
 		{
-//			if (task->fractal->input.is_avx)
-//			{
-//				task->fractal->calculator_avx(task->fractal, task->pixels,
-//											  point % task->pixels->width,
-//											  point / task->pixels->width);
-//				point += 4;
-//			}
-//			else
-//			{
+			if (task->fractal->input.is_avx)
+			{
+				task->fractal->calculator_avx(task->fractal, task->pixels,
+											  point % task->pixels->width,
+											  point / task->pixels->width);
+				point += 4;
+			}
+			else
+			{
 				task->fractal->calculator(task->fractal, task->pixels,
 										  point % task->pixels->width,
 										  point / task->pixels->width);
 				point++;
-//			}
+			}
 		}
-		ft_dprintf(2, "job for region at %d finished, signalling\n", task->region_start);
 		task->is_finished = true;
 		pthread_cond_signal(&g_tpool->job_end_cond);
 	}
@@ -103,8 +101,9 @@ int							tpool_add_task(t_task *task)
 	while (++i < g_tpool->threads_number)
 		if (g_tpool->threads[i].tfractal.is_finished)
 		{
-			ft_dprintf(2, "adding a job for region at %d \n", task->region_start);
+//			pthread_mutex_lock(&g_tpool->job_mutex);
 			g_tpool->threads[i].tfractal = *task;
+//			pthread_mutex_unlock(&g_tpool->job_mutex);
 			g_tpool->job_number++;
 			pthread_cond_signal_thread_np(&g_tpool->job_cond, g_tpool->threads[i].thread);
 			status = 0;
@@ -117,26 +116,14 @@ int							tpool_add_task(t_task *task)
 int							tpool_wait(void)
 {
 	int					i;
-	struct timeval		time;
-	struct timespec		timeout_time;
 
 	i = 0;
-	while (i < g_tpool->job_number)
+	while (i < g_tpool->threads_number)
 	{
 		pthread_mutex_lock(&g_tpool->pool_mutex);
-		gettimeofday(&time, NULL);
-		TIMEVAL_TO_TIMESPEC(&time, &timeout_time);
-		timeout_time.tv_sec += 100;
-		if (g_tpool->threads[i].tfractal.is_finished)
+		if (g_tpool->threads[i].tfractal.is_finished ||
+			pthread_cond_wait(&g_tpool->job_end_cond, &g_tpool->pool_mutex) == 0)
 			i++;
-		else if (pthread_cond_timedwait(&g_tpool->job_end_cond,
-				&g_tpool->pool_mutex, &timeout_time) == 0)
-			i++;
-		else
-		{
-			ft_dprintf(2, "wait timed out after 10 seconds: %s\n", strerror(errno));
-			i = INT32_MAX;
-		}
 		pthread_mutex_unlock(&g_tpool->pool_mutex);
 	}
 	return (i);

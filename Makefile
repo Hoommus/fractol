@@ -6,7 +6,7 @@
 #    By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/08/21 13:49:23 by vtarasiu          #+#    #+#              #
-#    Updated: 2019/09/19 17:01:23 by vtarasiu         ###   ########.fr        #
+#    Updated: 2019/09/20 15:04:58 by vtarasiu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -54,6 +54,7 @@ SDL_TTF_LIB_PATH = $(HOME)/.brew/Cellar/sdl2_ttf/2.0.15/lib
 HEADERS = fractals.h \
           fractol_png.h \
           fractol_data.h \
+          fractol_tpool.h \
           fractol_common.h \
           fractol_gradients.h
 
@@ -79,10 +80,8 @@ $(NAME): $(OBJ)
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJ) -I $(INCLUDE) $(LIBRARIES)
 
 # TODO: add header dependencies
-$(OBJ_DIR)%.o: $(FRACTOL_SRC_DIR)%.c $(LIBPNG_PATH) $(LIBFT_PATH) $(PRINTF_PATH) $(addprefix include/, $(HEADERS)) | $(OBJ_DIR)
-	@if ! [ -d $(OBJ_DIR) ] ; then \
-        mkdir -p $(OBJ_DIR) ; \
-    fi
+$(OBJ_DIR)%.o: $(FRACTOL_SRC_DIR)%.c $(LIBPNG_PATH) $(LIBFT_PATH) \
+               $(PRINTF_PATH) $(addprefix include/, $(HEADERS)) | $(OBJ_DIR)
 	@echo "    CC $<"
 	@$(CC) $(CFLAGS) $(INCLUDES) -o $@ -c $<
 

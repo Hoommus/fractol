@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/08 14:19:03 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/19 21:17:29 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/20 15:16:35 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,17 +91,10 @@ void	calculate_fractal_threaded(struct s_fractal *fractal,
 									void *display_pixels,
 									uint32_t threads_quantity)
 {
-	static struct s_fractal	*current;
-	static t_fract_calc		func;
 	uint32_t				region_start;
 	uint32_t				region_size;
 	uint32_t				total_size;
 
-	if (current != fractal)
-	{
-		current = fractal;
-		func = current->calculator;
-	}
 	region_start = 0;
 	region_size = pixels->height * pixels->width / threads_quantity;
 	total_size = pixels->height * pixels->width;
@@ -115,6 +108,8 @@ void	calculate_fractal_threaded(struct s_fractal *fractal,
 		region_start += region_size;
 	}
 	tpool_wait();
+//	ft_memcpy(display_pixels, pixels->map,
+//			  pixels->height * pixels->width * sizeof(uint32_t));
 	__builtin_memcpy(display_pixels, pixels->map,
 					 pixels->height * pixels->width * sizeof(uint32_t));
 }
