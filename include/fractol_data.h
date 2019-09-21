@@ -63,7 +63,6 @@ typedef struct		s_fractal
 
 		double		scroll_depth;
 	}					input;
-	struct s_rgba_map	*source;
 }					t_fractal;
 
 struct				s_command

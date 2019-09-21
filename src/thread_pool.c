@@ -6,22 +6,24 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/13 13:24:48 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/20 15:18:37 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/21 20:25:31 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractol_common.h"
 #include <pthread.h>
 #include <errno.h>
-#include <sys/time.h>
 #include "fractol_tpool.h"
+#include <stdatomic.h>
 
 static struct s_thread_pool	*g_tpool;
+volatile atomic_ullong		g_finished;
 
 void						*tpool_routine(void *arg)
 {
-	t_task		*task;
-	uint32_t	point;
+	t_fract_calc	func;
+	t_task			*task;
+	uint32_t		point;
 
 	task = arg;
 	while (true)
@@ -33,64 +35,58 @@ void						*tpool_routine(void *arg)
 			pthread_mutex_unlock(&g_tpool->job_mutex);
 			break ;
 		}
-		if (task->fractal == NULL || task->pixels == NULL)
-		{
-			pthread_mutex_unlock(&g_tpool->job_mutex);
-			continue ;
-		}
 		point = task->region_start;
+		func = task->fractal->input.is_avx ? task->fractal->calculator_avx : task->fractal->calculator;
 		pthread_mutex_unlock(&g_tpool->job_mutex);
 		while (point < task->region_start + task->region_length)
 		{
-			if (task->fractal->input.is_avx)
-			{
-				task->fractal->calculator_avx(task->fractal, task->pixels,
-											  point % task->pixels->width,
-											  point / task->pixels->width);
-				point += 4;
-			}
-			else
-			{
-				task->fractal->calculator(task->fractal, task->pixels,
-										  point % task->pixels->width,
-										  point / task->pixels->width);
-				point++;
-			}
+			func(task->fractal, task->pixels,
+				 point % task->pixels->width,
+				 point / task->pixels->width);
+			point += task->fractal->input.is_avx ? 4 : 1;
 		}
-		task->is_finished = true;
+		atomic_fetch_or(&g_finished, 1 << task->thread_number);
 		pthread_cond_signal(&g_tpool->job_end_cond);
+		task->is_finished = true;
 	}
 	return (NULL);
 }
 
-void						tpool_init(int thread_quantity)
+void						tpool_init(int size)
 {
-	int				i;
-	pthread_attr_t	attr;
+	int					i;
+	struct sched_param	param;
+	pthread_attr_t		attr;
+	pthread_t			this;
 
-	thread_quantity = thread_quantity <= 0 ? THREAD_POOL_CAPACITY : thread_quantity;
+	ft_bzero(&param, sizeof(struct sched_param));
+	this = pthread_self();
+	param.sched_priority = sched_get_priority_min(SCHED_RR);
+	pthread_setschedparam(this, SCHED_RR, &param);
+	g_finished = 0;
 	g_tpool = ft_memalloc(sizeof(struct s_thread_pool));
-	g_tpool->threads_number = thread_quantity;
+	g_tpool->finish_mask = 0;
+	g_tpool->threads_number = size;
 	pthread_mutex_init(&g_tpool->pool_mutex, PTHREAD_MUTEX_DEFAULT);
-	pthread_mutex_lock(&g_tpool->pool_mutex);
 	pthread_mutex_init(&g_tpool->job_mutex, PTHREAD_MUTEX_DEFAULT);
 	pthread_cond_init(&g_tpool->job_cond, NULL);
-	g_tpool->threads = ft_memalloc(sizeof(struct s_calc_thread) * thread_quantity);
-	i = 0;
+	pthread_cond_init(&g_tpool->job_cond, NULL);
 	pthread_attr_init(&attr);
+	param.sched_priority = sched_get_priority_max(SCHED_RR);
+	pthread_attr_setschedparam(&attr, &param);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-	while (i < thread_quantity)
+	g_tpool->threads = ft_memalloc(sizeof(struct s_calc_thread) * size);
+	i = -1;
+	while (++i < size)
 	{
 		g_tpool->threads[i].tfractal.is_finished = true;
-		pthread_create(&g_tpool->threads[i].thread, &attr, tpool_routine,
-			&g_tpool->threads[i].tfractal);
-		i++;
+		pthread_create(&g_tpool->threads[i].pthread, &attr, tpool_routine,
+						&g_tpool->threads[i].tfractal);
 	}
 	pthread_attr_destroy(&attr);
-	pthread_mutex_unlock(&g_tpool->pool_mutex);
 }
 
-int							tpool_add_task(t_task *task)
+int							tpool_add_task(t_task *_Nonnull task)
 {
 	int		i;
 	int		status;
@@ -101,11 +97,11 @@ int							tpool_add_task(t_task *task)
 	while (++i < g_tpool->threads_number)
 		if (g_tpool->threads[i].tfractal.is_finished)
 		{
-//			pthread_mutex_lock(&g_tpool->job_mutex);
 			g_tpool->threads[i].tfractal = *task;
-//			pthread_mutex_unlock(&g_tpool->job_mutex);
+			g_tpool->threads[i].tfractal.thread_number = i;
+			g_tpool->threads[i].tfractal.is_finished = false;
 			g_tpool->job_number++;
-			pthread_cond_signal_thread_np(&g_tpool->job_cond, g_tpool->threads[i].thread);
+			pthread_cond_signal_thread_np(&g_tpool->job_cond, g_tpool->threads[i].pthread);
 			status = 0;
 			break ;
 		}
@@ -117,15 +113,14 @@ int							tpool_wait(void)
 {
 	int					i;
 
-	i = 0;
+	pthread_mutex_lock(&g_tpool->pool_mutex);	i = 0;
 	while (i < g_tpool->threads_number)
 	{
-		pthread_mutex_lock(&g_tpool->pool_mutex);
-		if (g_tpool->threads[i].tfractal.is_finished ||
-			pthread_cond_wait(&g_tpool->job_end_cond, &g_tpool->pool_mutex) == 0)
+
+		if (g_tpool->threads[i].tfractal.is_finished || pthread_cond_wait(&g_tpool->job_end_cond, &g_tpool->pool_mutex) == 0)
 			i++;
-		pthread_mutex_unlock(&g_tpool->pool_mutex);
 	}
+	pthread_mutex_unlock(&g_tpool->pool_mutex);
 	return (i);
 }
 

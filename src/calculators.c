@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/08 14:19:03 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/20 15:16:35 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/20 16:37:48 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,25 +91,23 @@ void	calculate_fractal_threaded(struct s_fractal *fractal,
 									void *display_pixels,
 									uint32_t threads_quantity)
 {
-	uint32_t				region_start;
-	uint32_t				region_size;
+	uint32_t				start;
+	uint32_t				size;
 	uint32_t				total_size;
 
-	region_start = 0;
-	region_size = pixels->height * pixels->width / threads_quantity;
+	start = 0;
+	size = pixels->height * pixels->width / threads_quantity;
 	total_size = pixels->height * pixels->width;
 	precalculate_factors(fractal, pixels);
-	while (region_start < total_size)
+	while (start < total_size)
 	{
-		if (total_size - region_start < region_size)
-			tpool_add_task(&(t_task) {fractal, pixels, region_start, total_size - region_start, false});
+		if (total_size - start < size)
+			tpool_add_task(&(t_task){fractal, pixels, start, total_size - start, 0, false});
 		else
-			tpool_add_task(&(t_task) {fractal, pixels, region_start, region_size, false});
-		region_start += region_size;
+			tpool_add_task(&(t_task){fractal, pixels, start, size, 0, false});
+		start += size;
 	}
 	tpool_wait();
-//	ft_memcpy(display_pixels, pixels->map,
-//			  pixels->height * pixels->width * sizeof(uint32_t));
 	__builtin_memcpy(display_pixels, pixels->map,
 					 pixels->height * pixels->width * sizeof(uint32_t));
 }

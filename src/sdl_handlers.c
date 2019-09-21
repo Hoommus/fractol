@@ -70,6 +70,8 @@ uint32_t			poll_events(SDL_Window *window,
 		{
 			fractal->input.mouse_cx = event.motion.x;
 			fractal->input.mouse_cy = event.motion.y;
+			fractal->input.mouse_x = event.motion.x;
+			fractal->input.mouse_y = event.motion.y;
 			feedback |= UI_FEEDBACK_REDRAW;
 		}
 		if (event.type == SDL_MOUSEBUTTONDOWN)

@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 21:52:16 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/12 16:11:57 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/20 18:58:28 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,6 @@ static const struct s_command	g_dispatchable[] =
 			&mandel_avx2,
 			NULL,
 			{0},
-			NULL
 		}
 	},
 	{
@@ -37,7 +36,6 @@ static const struct s_command	g_dispatchable[] =
 			&mandel_avx2,
 			NULL,
 			{0},
-			NULL
 		}
 	},
 	{
@@ -63,7 +61,7 @@ static inline struct s_rgba_map	*init_common(struct s_fractal *fractal)
 	return (pixels);
 }
 
-int								forknrun_sdl(const struct s_command *cmd)
+static int						forknrun_sdl(const struct s_command *cmd, const struct s_options *options)
 {
 	struct s_fractal	fractal;
 	struct s_rgba_map	*pixels;
@@ -85,11 +83,11 @@ int								forknrun_sdl(const struct s_command *cmd)
 		exit(ft_dprintf(2, "window is null\n"));
 	calculate_fractal(&fractal, pixels, SDL_GetWindowSurface(window)->pixels);
 	SDL_UpdateWindowSurface(window);
-	sdl_game_loop(window, &fractal, pixels);
+	sdl_game_loop(window, &fractal, pixels, options);
 	return (0);
 }
 
-int								forknrun_mlx(const struct s_command *cmd)
+int								forknrun_mlx(const struct s_command *cmd, __unused const struct s_options *options)
 {
 	struct s_fractal	fractal;
 	struct s_rgba_map	*pixels;
@@ -106,7 +104,7 @@ int								forknrun_mlx(const struct s_command *cmd)
 	return (0);
 }
 
-int								dispatch(const char **argv)
+int dispatch(const char **argv, const struct s_options *options)
 {
 	int		i;
 	int		status;
@@ -116,7 +114,7 @@ int								dispatch(const char **argv)
 	while (g_dispatchable[++i].name)
 	{
 		if (ft_strcmp(argv[0], g_dispatchable[i].name) == 0)
-			status = forknrun_sdl(g_dispatchable + i);
+			status = forknrun_sdl(g_dispatchable + i, options);
 	}
 	return (status);
 }
