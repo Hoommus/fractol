@@ -20,7 +20,7 @@
 */
 
 void		colorize_pixels(struct s_rgba_map *restrict pixels,
-							struct s_gradient *restrict gradient_map,
+							struct s_gradient *restrict map,
 							int arg_points,
 							...)
 {
@@ -39,12 +39,12 @@ void		colorize_pixels(struct s_rgba_map *restrict pixels,
 		iteration = va_arg(args, int);
 		if (y * pixels->width + x == pixels->height * pixels->width)
 			break ;
-		if (gradient_map && gradient_map->colors_cache)
+		if (map && map->colors_cache)
 			pixels->map[y * pixels->width + x] =
-				gradient_map->colors_cache[gradient_map->is_reverse
-				? gradient_map->max_iterations - iteration : iteration];
+				map->colors_cache[map->is_reverse
+					? map->max_iterations - iteration : iteration];
 		else
-			pixels->map[y * pixels->width + x] = grad_get_iter_color(gradient_map, iteration);
+			pixels->map[y * pixels->width + x] = grad_get_iter_color(map, iteration);
 		pixels->map_metadata[y * pixels->width + x].iteration = iteration;
 		i++;
 	}

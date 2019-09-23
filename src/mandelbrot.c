@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/22 18:46:14 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/09 20:25:16 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/23 19:43:47 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ static inline void	mandel_init_registers(struct s_avx_data *restrict data,
 	const struct s_fractal	*fract = data->fractal;
 
 	data->iters = _mm256_setzero_pd();
-	data->iter = _mm256_set1_pd(fract->max_iterations);
+	data->iter = _mm256_set1_pd(fract->max_iterations - 1);
 	data->creal = _mm256_set_pd(
 		(x - 0. - fract->input.factor_shift_x) / (fract->input.factor_scale_x),
 		(x - 1. - fract->input.factor_shift_x) / (fract->input.factor_scale_x),
@@ -31,10 +31,11 @@ static inline void	mandel_init_registers(struct s_avx_data *restrict data,
 	data->cimg  = _mm256_set1_pd(((y) - fract->input.factor_shift_y) / (fract->input.factor_scale_y));
 	data->cx = _mm256_sub_pd(data->creal, _mm256_set1_pd(fract->input.factor_cx));
 	data->cy = _mm256_add_pd(data->cimg, _mm256_set1_pd(fract->input.factor_cy));
-	data->iters_mask = _mm256_set1_pd(0.0);
+	data->iters_mask = _mm256_set1_pd(1);
+	data->iters = _mm256_set1_pd(fract->max_iterations - 1);
 }
 
-uint32_t				mandel_avx2(const struct s_fractal *restrict fract,
+uint32_t			mandel_avx2(const struct s_fractal *restrict fract,
 										struct s_rgba_map *restrict pixels,
 										uint32_t x,
 										uint32_t y)
@@ -66,7 +67,7 @@ uint32_t				mandel_avx2(const struct s_fractal *restrict fract,
 	return (0);
 }
 
-uint32_t				mandel_pixel(const struct s_fractal *restrict fract,
+uint32_t			mandel_pixel(const struct s_fractal *restrict fract,
 							struct s_rgba_map *restrict pixels,
 							uint32_t x,
 							uint32_t y)

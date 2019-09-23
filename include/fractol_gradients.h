@@ -26,9 +26,9 @@ enum				e_gradient_type
 
 typedef struct		s_hsv
 {
-	float	h;
-	float	s;
-	float	v;
+	double	h;
+	double	s;
+	double	v;
 }					t_hsv_color;
 
 typedef struct		s_gradient_point

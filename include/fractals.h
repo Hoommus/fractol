@@ -60,7 +60,7 @@ uint32_t		mandel_avx2(const struct s_fractal *restrict fract,
 							uint32_t y);
 
 void			colorize_pixels(struct s_rgba_map *pixels,
-								struct s_gradient *gradient_map,
+								struct s_gradient *map,
 								int arg_points,
 								...);
 

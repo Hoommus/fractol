@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/18 17:46:48 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/21 19:02:02 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/23 13:53:32 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ typedef struct		s_task
 	struct s_rgba_map	*pixels;
 	uint32_t			region_start;
 	uint32_t			region_length;
-	uint64_t				thread_number;
+	uint64_t			thread_number;
 	bool				is_finished;
 }					t_task;
 
@@ -49,13 +49,15 @@ struct				s_thread_pool
 	struct s_calc_thread	*threads;
 	int32_t					threads_number;
 	int32_t					job_number;
-	atomic_ullong			finish_mask;
-	bool					dies;
+	atomic_ullong			finished;
+	atomic_ullong			must_finish;
+	atomic_bool				dies;
 };
 
 void						tpool_init(int size);
 int							tpool_add_task(t_task *task);
 int							tpool_wait(void);
+int							tpool_cleanup(void);
 int							tpool_runnwait(void);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/28 20:02:59 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/09 17:09:20 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/23 19:22:12 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ struct s_gradient_point		*grad_create_point(uint32_t color, uint32_t location, u
 
 	point = ft_memalloc(sizeof(struct s_gradient_point));
 	point->rgba = color;
-	point->location = (double)location / max;
+	point->location = (double)location / (double)max;
 	rgb2hsv(color, &(point->hsv));
 	return (point);
 }
@@ -88,7 +88,7 @@ struct s_gradient			*grad_cache_colors(struct s_gradient *gradient)
 
 	if (gradient->colors_cache)
 		ft_memdel((void **)&(gradient->colors_cache));
-	cache = ft_memalloc(sizeof(uint32_t) * gradient->max_iterations + 4);
+	cache = ft_memalloc(sizeof(uint32_t) * (gradient->max_iterations + 1));
 	i = 0;
 	while (i < gradient->max_iterations)
 	{
@@ -102,7 +102,7 @@ struct s_gradient			*grad_cache_colors(struct s_gradient *gradient)
 static struct s_hsv			*inter_linear(const struct s_hsv *restrict left,
 										const struct s_hsv *restrict right,
 										double location,
-										struct s_hsv *result)
+										struct s_hsv *restrict result)
 {
 	double		d;
 
@@ -133,17 +133,13 @@ uint32_t					grad_get_iter_color(struct s_gradient *gradient,
 	if (gradient->colors_cache && iteration <= gradient->max_iterations)
 		return (gradient->colors_cache[iteration]);
 	l = (double)iteration / (double)gradient->max_iterations;
-	while (list && list->next)
+	while (list)
 	{
 		if (list->location == l)
 			return (hsv2rgb(rgb2hsv(list->rgba, &hsvl_inter)));
-		if (list->next && l > list->location && l <= list->next->location)
+		if (list->next && l >= list->location && l <= list->next->location)
 			return (hsv2rgb(inter_linear(&(list->hsv), &(list->next->hsv), l, &hsvl_inter)));
 		list = list->next;
 	}
-	if (list == NULL)
-		return (0);
-	else if (list->next == NULL)
-		return (list->rgba);
-	return (list->next->rgba);
+	return (0xFFFFFF);
 }

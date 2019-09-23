@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 21:52:16 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/20 18:58:28 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/23 20:54:14 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ static const struct s_command	g_dispatchable[] =
 		.name = "mandelbrot",
 		.temp_late = {
 			0,
-			100,
+			50,
 			&mandel_pixel,
 			&mandel_avx2,
 			NULL,
@@ -55,7 +55,7 @@ static inline struct s_rgba_map	*init_common(struct s_fractal *fractal)
 	fractal->max_iterations = 100;
 	fractal->gradient_map = grad_create_from(GRADIENT_LINEAR, fractal->max_iterations,
 		4,
-	COLOR_GOLDEN_YELLOW, 0, COLOR_WARLOCK_PURPLE, 30, COLOR_BLOOD_RED, 70, COLOR_ULTRAMARINE, fractal->max_iterations);
+	COLOR_GOLDEN_YELLOW, 0, COLOR_WARLOCK_PURPLE, 10, COLOR_BLOOD_RED, 30, COLOR_ULTRAMARINE, fractal->max_iterations);
 	fractal->gradient_map->is_reverse = false;
 	grad_cache_colors(fractal->gradient_map);
 	return (pixels);
@@ -111,10 +111,30 @@ int dispatch(const char **argv, const struct s_options *options)
 
 	status = -1;
 	i = -1;
-	while (g_dispatchable[++i].name)
+	if (argv[0] != NULL)
 	{
-		if (ft_strcmp(argv[0], g_dispatchable[i].name) == 0)
-			status = forknrun_sdl(g_dispatchable + i, options);
+		while (g_dispatchable[++i].name)
+		{
+			if (ft_strcmp(argv[0], g_dispatchable[i].name) == 0)
+			{
+				if (options->opts & OPTION_NO_GUI);
+				else if (options->opts & OPTION_SDL)
+					status = forknrun_sdl(g_dispatchable + i, options);
+				else
+					status = forknrun_mlx(g_dispatchable + i, options);
+			}
+		}
+	}
+	else
+		status = -2;
+	if (status < 0)
+	{
+		if (status == -1)
+			ft_dprintf(2, "fractol: no fractal named `%s'\n", argv[0]);
+		ft_dprintf(2,"Please, specify one of the following fractals:\n");
+		i = -1;
+		while (g_dispatchable[++i].name)
+			ft_dprintf(2, "\t%s\n", g_dispatchable[i].name);
 	}
 	return (status);
 }

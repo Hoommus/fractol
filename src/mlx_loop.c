@@ -54,6 +54,8 @@ int				mouse_hook(int x, int y, void *param)
 
 	crutch->fractal->input.mouse_x = x;
 	crutch->fractal->input.mouse_y = y;
+	crutch->fractal->input.mouse_cx = x;
+	crutch->fractal->input.mouse_cy = y;
 	put_image(param);
 	return (0);
 }
