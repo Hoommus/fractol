@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 14:36:20 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/23 20:52:08 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/28 19:03:07 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,14 +110,13 @@ int						parse_flags(int argc, const char **argv, struct s_options *opts)
 		if (ft_strncmp(argv[i], "-t", 2) == 0 || ft_strncmp(argv[i], "-j", 2) == 0)
 		{
 			opts->threads = ft_atoi(argv[i][2] == '=' ? argv[i] + 3 : argv[++i]);
-			if (opts->threads > 0 && opts->threads <= 64)
+			opts->opts |= OPTION_THREADED;
+			if (opts->threads <= 0 || opts->threads > 64)
 			{
-				opts->opts |= OPTION_THREADED;
-				opts->threads = opts->threads > 64 ? 64 : opts->threads;
+				ft_dprintf(2, "warning: invalid threads quantity: "
+					"must be in range between 1 and 64.\n    Running at 4 threads\n");
+				opts->threads = 4;
 			}
-			else
-				ft_dprintf(2, "warning: invalid threads quantity:"
-				  "Must be in range between 1 and 64\n");
 		}
 		else if (ft_strcmp(argv[i], "--mlx") == 0)
 			opts->opts |= OPTION_MLX;

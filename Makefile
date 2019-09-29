@@ -6,7 +6,7 @@
 #    By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/08/21 13:49:23 by vtarasiu          #+#    #+#              #
-#    Updated: 2019/09/23 19:17:04 by vtarasiu         ###   ########.fr        #
+#    Updated: 2019/09/28 20:27:18 by vtarasiu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ CC = clang
 NAME = fractol
 
 CFLAGS = -mavx -mavx2 -Wall -Wextra -Werror \
-         -g -O2 #-fsanitize=address #
+         -g -O2 #-fsanitize=thread #
 
 LIB_DIR = lib/
 
@@ -38,12 +38,13 @@ FRACTOL_SRC = calculators.c \
               gradient_map.c \
               main.c \
               mandelbrot.c \
-              mlx_loop.c \
               quit.c \
               rgb_to_hsv.c \
               sdl_handlers.c \
               sdl_loop.c \
               thread_pool.c
+
+FRACTOL_SRC += mlx_loop.c
 
 SDL_HEADER_PATH = /Users/vtarasiu/.brew/Cellar/sdl2/2.0.10/include/SDL2/
 SDL_LIB_PATH = /Users/vtarasiu/.brew/Cellar/sdl2/2.0.10/lib/

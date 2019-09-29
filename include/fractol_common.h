@@ -6,14 +6,17 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 22:09:50 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/20 18:42:30 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/28 12:22:43 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FRACTOL_COMMON_H
 # define FRACTOL_COMMON_H
 
-# include <mlx.h>
+# if __has_include("mlx.h")
+#  include <mlx.h>
+# endif
+
 # include <stddef.h>
 # include <unistd.h>
 # include <stdbool.h>
@@ -36,9 +39,9 @@
 enum				e_options
 {
 	OPTION_HELP = 1,
-	OPTION_AVX = 1 << 2,
-	OPTION_OPENCL = 1 << 3,
-	OPTION_CUDA = 1 << 4,
+	OPTION_AVX = 1 << 1,
+	OPTION_OPENCL = 1 << 2,
+	OPTION_CUDA = 1 << 3,
 	OPTION_NO_GUI = 1 << 9,
 	OPTION_NO_USER_INPUT = 1 << 10,
 	OPTION_THREADED = 1 << 11,
@@ -68,12 +71,11 @@ void				render_metadata(SDL_Window *window,
 								struct s_fractal *fractal,
 								struct s_rgba_map *pixels);
 
-noreturn void sdl_game_loop(SDL_Window *window, struct s_fractal *fractal, struct s_rgba_map *pixels,
+noreturn void		sdl_game_loop(SDL_Window *window, struct s_fractal *fractal,
+								struct s_rgba_map *pixels,
+								const struct s_options *restrict options);
+noreturn void mlx_game_loop(void *mlx_ptr, void *mlx_window, struct s_fractal *fractal, struct s_rgba_map *pixels,
 							const struct s_options *options);
-noreturn void		mlx_game_loop(void *mlx_ptr,
-								void *mlx_window,
-								struct s_fractal *fractal,
-								struct s_rgba_map *pixels);
 
 noreturn void		quit(int status);
 

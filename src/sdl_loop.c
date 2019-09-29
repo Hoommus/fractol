@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/25 18:58:12 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/23 20:13:17 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/29 15:51:57 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,9 +84,12 @@ void				render_metadata(SDL_Window *window,
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
 
-noreturn void sdl_game_loop(SDL_Window *window, struct s_fractal *fractal, struct s_rgba_map *pixels,
-							const struct s_options *options)
+noreturn void		sdl_game_loop(SDL_Window *window,
+									struct s_fractal *fractal,
+									struct s_rgba_map *pixels,
+									const struct s_options *restrict options)
 {
+//	const void		*window_pixels = SDL_GetWindowSurface(window)->pixels;
 	struct timeval	start;
 	struct timeval	end;
 	uint32_t		ret;
@@ -94,32 +97,32 @@ noreturn void sdl_game_loop(SDL_Window *window, struct s_fractal *fractal, struc
 	fractal->input.is_avx = true;
 	while (true)
 	{
-		ret = poll_events(window, fractal, pixels);
-		if ((ret & UI_FEEDBACK_REDRAW))
-		{
-			if ((ret & UI_FEEDBACK_AVX))
-				fractal->input.is_avx = !fractal->input.is_avx;
-			if (!fractal->input.locked)
-			{
-				gettimeofday(&start, NULL);
-				if (options->opts & OPTION_THREADED)
-					calculate_fractal_threaded(fractal, pixels, SDL_GetWindowSurface(window)->pixels, options->threads);
-				else if (fractal->input.is_avx)
-					calculate_fractal_avx(fractal, pixels, SDL_GetWindowSurface(window)->pixels);
-				else
-					calculate_fractal(fractal, pixels, SDL_GetWindowSurface(window)->pixels);
-				gettimeofday(&end, NULL);
-				if (options->opts & OPTION_VERBOSE)
-					ft_printf("%s: %ld s %d us\n",
-					fractal->input.is_avx ? "avx" : "classic",
-					end.tv_sec - start.tv_sec, ABS(end.tv_usec - start.tv_usec));
-			}
-			render_metadata(window, fractal, pixels);
-			int r = SDL_UpdateWindowSurface(window);
-			if (r != 0)
-				exit(ft_dprintf(2, "SDL failed: %s\n", SDL_GetError()));
-		}
 		SDL_Delay(10);
+		ret = poll_events(window, fractal, pixels);
+		if (!(ret & UI_FEEDBACK_REDRAW))
+			continue ;
+		if ((ret & UI_FEEDBACK_AVX))
+			fractal->input.is_avx = !fractal->input.is_avx;
+		if (!fractal->input.locked)
+		{
+			if (options->opts & OPTION_VERBOSE)
+				gettimeofday(&start, NULL);
+			if (options->opts & OPTION_THREADED)
+				calculate_fractal_threaded(fractal, pixels, SDL_GetWindowSurface(window)->pixels, options->threads);
+			else if (fractal->input.is_avx)
+				calculate_fractal_avx(fractal, pixels, SDL_GetWindowSurface(window)->pixels);
+			else
+				calculate_fractal(fractal, pixels, SDL_GetWindowSurface(window)->pixels);
+			if (options->opts & OPTION_VERBOSE)
+			{
+				gettimeofday(&end, NULL);
+				ft_printf("%s: %ld s %d us\n",
+						  fractal->input.is_avx ? "avx" : "classic",
+						  end.tv_sec - start.tv_sec, ABS(end.tv_usec - start.tv_usec));
+			}
+		}
+		render_metadata(window, fractal, pixels);
+		SDL_UpdateWindowSurface(window);
 	}
 }
 

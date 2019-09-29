@@ -6,29 +6,50 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/08 17:11:15 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/11 17:54:31 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/29 17:27:26 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <fractals.h>
 #include "fractol_common.h"
+#include <time.h>
+#include <sys/time.h>
 
 struct			s_mlx_crutch
 {
-	struct s_fractal	*fractal;
-	struct s_rgba_map	*pixels;
-	void				*mlx_ptr;
-	void				*mlx_window;
-	void				*mlx_image;
+	struct s_fractal					*fractal;
+	struct s_rgba_map					*pixels;
+	const struct s_options *restrict	options;
+	void								*mlx_ptr;
+	void								*mlx_window;
+	void								*mlx_image;
 };
 
 int				put_image(void *param)
 {
 	const struct s_mlx_crutch	*crutch = param;
+	struct timeval				start;
+	struct timeval				end;
+	void						*display_pixels;
 	int							dummy[3];
 
-	calculate_fractal_avx(crutch->fractal, crutch->pixels,
-						  mlx_get_data_addr(crutch->mlx_image, dummy, dummy + 1, dummy + 2));
+	display_pixels = mlx_get_data_addr(crutch->mlx_image, dummy, dummy + 1, dummy + 2);
+	if (crutch->options->opts & OPTION_VERBOSE)
+		gettimeofday(&start, NULL);
+	if (crutch->options->opts & OPTION_THREADED)
+		calculate_fractal_threaded(crutch->fractal, crutch->pixels,
+								   display_pixels, crutch->options->threads);
+	else if (crutch->fractal->input.is_avx)
+		calculate_fractal_avx(crutch->fractal, crutch->pixels, display_pixels);
+	else
+		calculate_fractal(crutch->fractal, crutch->pixels, display_pixels);
+	if (crutch->options->opts & OPTION_VERBOSE)
+	{
+		gettimeofday(&end, NULL);
+		ft_printf("%s: %ld s %d us\n",
+			crutch->fractal->input.is_avx ? "avx" : "classic",
+			end.tv_sec - start.tv_sec, ABS(end.tv_usec - start.tv_usec));
+	}
 	mlx_put_image_to_window(crutch->mlx_ptr, crutch->mlx_window, crutch->mlx_image, 0, 0);
 	return (0);
 }
@@ -99,14 +120,15 @@ int				key_hooks(int scancode, void *param)
 	return (status);
 }
 
-noreturn void			mlx_game_loop(void *mlx_ptr,
-	void *mlx_window,
-	struct s_fractal *fractal,
-	struct s_rgba_map *pixels)
+noreturn void mlx_game_loop(void *restrict mlx_ptr,
+							void *restrict mlx_window,
+							struct s_fractal *restrict fractal,
+							struct s_rgba_map *restrict pixels,
+							const struct s_options *restrict options)
 {
 	struct s_mlx_crutch	crutch;
 
-	crutch = (struct s_mlx_crutch){fractal, pixels, mlx_ptr, mlx_window, 0};
+	crutch = (struct s_mlx_crutch){fractal, pixels, options, mlx_ptr, mlx_window, 0};
 	crutch.mlx_image = mlx_new_image(mlx_ptr, pixels->width, pixels->height);
 	mlx_key_hook(mlx_window, &iterations_hook, (void *)&crutch);
 	put_image((void *)&crutch);
