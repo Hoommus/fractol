@@ -59,6 +59,15 @@ uint32_t		mandel_avx2(const struct s_fractal *restrict fract,
 							uint32_t x,
 							uint32_t y);
 
+uint32_t		julia_pixel(const struct s_fractal *restrict fract,
+							struct s_rgba_map *pixels,
+							uint32_t x,
+							uint32_t y);
+uint32_t		julia_avx2(const struct s_fractal *restrict fract,
+							struct s_rgba_map *restrict pixels,
+							uint32_t x,
+							uint32_t y);
+
 void			colorize_pixels(struct s_rgba_map *pixels,
 								struct s_gradient *map,
 								int arg_points,

@@ -40,18 +40,16 @@ void						*tpool_routine(void *arg)
 			continue ;
 		}
 		point = task->region_start;
-		func = task->fractal->input.is_avx ? task->fractal->calculator_avx : task->fractal->calculator;
+		func = task->fractal->input.is_avx ? task->fractal->calc_avx : task->fractal->calc;
 		pthread_mutex_unlock(&g_tpool->job_mutex);
 		while (point < task->region_start + task->region_length)
 		{
-			func(task->fractal, task->pixels,
-				 point % task->pixels->width,
+			func(task->fractal, task->pixels, point % task->pixels->width,
 				 point / task->pixels->width);
 			point += task->fractal->input.is_avx ? 4 : 1;
 		}
 		task->fractal = NULL;
-		atomic_fetch_and(&g_tpool->must_finish, task->thread_bit_inverse);
-//		ft_dprintf(2, "Unset the %8llx bit\n", task->thread_bit);
+		atomic_fetch_and(&g_tpool->must_finish, ~task->thread_bit);
 	}
 	return (NULL);
 }
@@ -82,8 +80,6 @@ void						tpool_init(int size)
 	{
 		g_tpool->threads[i].tfractal.thread_number = i;
 		g_tpool->threads[i].tfractal.thread_bit = 1ULL << i;
-		g_tpool->threads[i].tfractal.thread_bit_inverse = ~(1ULL << i);
-//		ft_dprintf(2, "assigned %llx bit\n", g_tpool->threads[i].tfractal.thread_bit);
 		pthread_create(&g_tpool->threads[i].pthread, &attr, tpool_routine,
 					   &g_tpool->threads[i].tfractal);
 	}
@@ -107,7 +103,6 @@ int							tpool_add_task(t_task *task, bool start_right_away)
 			g_tpool->threads[i].tfractal.region_length = task->region_length;
 			g_tpool->threads[i].tfractal.region_start = task->region_start;
 			atomic_fetch_or(&g_tpool->must_finish, g_tpool->threads[i].tfractal.thread_bit);
-//			ft_dprintf(2, "set the   %8llx bit\n", g_tpool->threads[i].tfractal.thread_bit);
 			if (start_right_away)
 			{
 #ifdef __APPLE__
@@ -122,14 +117,6 @@ int							tpool_add_task(t_task *task, bool start_right_away)
 	}
 	pthread_mutex_unlock(&g_tpool->pool_mutex);
 	return (status);
-}
-
-int							tpool_wait(void)
-{
-	while (g_tpool->must_finish)
-		;
-//	ft_dprintf(2, "=========================================\n");
-	return (0);
 }
 
 int							tpool_cleanup(void)
@@ -152,5 +139,7 @@ int							tpool_cleanup(void)
 int							tpool_runnwait(void)
 {
 	pthread_cond_broadcast(&g_tpool->job_cond);
-	return (tpool_wait());
+	while (g_tpool->must_finish)
+		;
+	return (0);
 }

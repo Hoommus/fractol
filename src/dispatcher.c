@@ -20,7 +20,7 @@ static const struct s_command	g_dispatchable[] =
 		.name = "mandelbrot",
 		.temp_late = {
 			0,
-			50,
+			100,
 			&mandel_pixel,
 			&mandel_avx2,
 			NULL,
@@ -31,9 +31,9 @@ static const struct s_command	g_dispatchable[] =
 		.name = "julia",
 		.temp_late = {
 			0,
-			50,
-			&mandel_pixel,
-			&mandel_avx2,
+			100,
+			&julia_pixel,
+			&julia_avx2,
 			NULL,
 			{0},
 		}
@@ -52,7 +52,6 @@ static inline struct s_rgba_map	*init_common(struct s_fractal *fractal)
 	pixels->width = 1200;
 	pixels->map = ft_memalloc(sizeof(uint32_t) * pixels->width * pixels->height + 4);
 	pixels->map_metadata = ft_memalloc(sizeof(struct s_pixel_meta) * pixels->width * pixels->height + 4);
-	fractal->max_iterations = 100;
 	fractal->gradient_map = grad_create_from(GRADIENT_LINEAR, fractal->max_iterations,
 		4,
 	COLOR_GOLDEN_YELLOW, 0, COLOR_WARLOCK_PURPLE, 10, COLOR_BLOOD_RED, 30, COLOR_ULTRAMARINE, fractal->max_iterations);

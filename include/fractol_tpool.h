@@ -54,7 +54,6 @@ struct				s_thread_pool
 
 void						tpool_init(int size);
 int							tpool_add_task(t_task *task, bool start_right_away);
-int							tpool_wait(void);
 int							tpool_cleanup(void);
 int							tpool_runnwait(void);
 

@@ -6,7 +6,7 @@
 #    By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/08/21 13:49:23 by vtarasiu          #+#    #+#              #
-#    Updated: 2019/09/28 20:27:18 by vtarasiu         ###   ########.fr        #
+#    Updated: 2019/09/29 20:35:30 by vtarasiu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,7 +37,6 @@ FRACTOL_SRC = calculators.c \
               dispatcher.c \
               gradient_map.c \
               main.c \
-              mandelbrot.c \
               quit.c \
               rgb_to_hsv.c \
               sdl_handlers.c \
@@ -45,6 +44,10 @@ FRACTOL_SRC = calculators.c \
               thread_pool.c
 
 FRACTOL_SRC += mlx_loop.c
+
+FRACTOL_FRACTALS_DIR = fractals/
+FRACTOL_FRACTALS_SRC = mandelbrot.c \
+                       julia.c
 
 SDL_HEADER_PATH = /Users/vtarasiu/.brew/Cellar/sdl2/2.0.10/include/SDL2/
 SDL_LIB_PATH = /Users/vtarasiu/.brew/Cellar/sdl2/2.0.10/lib/
@@ -68,8 +71,11 @@ LIBRARIES = -lft -lftprintf -L$(PRINTF_DIR) -L$(LIBFT_DIR) -L$(LIBPNG_DIR) \
             -l pthread
 
 OBJ_DIR = obj/
-OBJ = $(addprefix $(OBJ_DIR), $(FRACTOL_SRC:.c=.o))
-SRC = $(addprefix $(FRACTOL_SRC_DIR), $(FRACTOL_SRC))
+OBJ = $(addprefix $(OBJ_DIR), $(FRACTOL_SRC:.c=.o)) \
+      $(addprefix $(OBJ_DIR)/$(FRACTOL_FRACTALS_DIR), $(FRACTOL_FRACTALS_SRC:.c=.o))
+
+SRC = $(addprefix $(FRACTOL_SRC_DIR), $(FRACTOL_SRC)) \
+      $(addprefix $(OBJ_DIR)/$(FRACTOL_FRACTALS_DIR), $(FRACTOL_FRACTALS_SRC:.c=.o))
 
 NEEDS_SYNC = false
 
@@ -80,14 +86,18 @@ $(NAME): $(OBJ)
 	@echo "    CC $(NAME)"
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJ) -I $(INCLUDE) $(LIBRARIES)
 
-# TODO: add header dependencies
-$(OBJ_DIR)%.o: $(FRACTOL_SRC_DIR)%.c $(LIBPNG_PATH) $(LIBFT_PATH) \
-               $(PRINTF_PATH) $(addprefix include/, $(HEADERS)) | $(OBJ_DIR)
+
+$(OBJ_DIR)%.o: $(FRACTOL_SRC_DIR)%.c $(OBJ_DIR) $(OBJ_DIR)/$(FRACTOL_FRACTALS_DIR) \
+               $(LIBPNG_PATH) $(LIBFT_PATH) \
+               $(PRINTF_PATH) $(addprefix include/, $(HEADERS))
 	@echo "    CC $<"
 	@$(CC) $(CFLAGS) $(INCLUDES) -o $@ -c $<
 
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
+
+$(OBJ_DIR)/$(FRACTOL_FRACTALS_DIR): $(OBJ_DIR)
+	@mkdir -p $(OBJ_DIR)/$(FRACTOL_FRACTALS_DIR)
 
 prepare: submodules
 	@mkdir -p $(OBJ_DIR)

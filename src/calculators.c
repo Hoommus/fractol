@@ -40,14 +40,14 @@ void	calculate_fractal_avx(struct s_fractal *fractal,
 	struct s_rgba_map *pixels, void *display_pixels)
 {
 	static struct s_fractal	*current;
-	const t_fract_calc		func = current ? current->calculator_avx : NULL;
+	const t_fract_calc		func = current ? current->calc_avx : NULL;
 	int32_t					x;
 	int32_t					y;
 
 	if (current != fractal)
 	{
 		current = fractal;
-		ft_memcpy((void *)&func, &(current->calculator), sizeof(current->calculator));
+		ft_memcpy((void *)&func, &(current->calc), sizeof(current->calc));
 	}
 	precalculate_factors(fractal, pixels);
 	y = 0;
@@ -69,14 +69,14 @@ void	calculate_fractal(struct s_fractal *fractal,
 	struct s_rgba_map *pixels, void *display_pixels)
 {
 	static struct s_fractal	*current;
-	const t_fract_calc		func = current ? current->calculator : NULL;
+	const t_fract_calc		func = current ? current->calc : NULL;
 	int32_t					x;
 	int32_t					y;
 
 	if (current != fractal)
 	{
 		current = fractal;
-		ft_memcpy((void *)&func, &(current->calculator), sizeof(current->calculator));
+		ft_memcpy((void *)&func, &(current->calc), sizeof(current->calc));
 	}
 	precalculate_factors(fractal, pixels);
 	x = -1;

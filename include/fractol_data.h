@@ -28,8 +28,8 @@ typedef struct		s_fractal
 	uint64_t			flags;
 	uint32_t			max_iterations;
 
-	t_fract_calc		calculator;
-	t_fract_calc		calculator_avx;
+	t_fract_calc		calc;
+	t_fract_calc		calc_avx;
 
 	struct s_gradient	*gradient_map;
 

@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/22 18:46:14 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/23 19:43:47 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/09/29 20:10:03 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,12 +77,12 @@ uint32_t			mandel_pixel(const struct s_fractal *restrict fract,
 	uint32_t				iter;
 
 	iter = fract->max_iterations;
-	data.creal = ((float)x - fract->input.factor_shift_x) / (fract->input.factor_scale_x);
-	data.cimg  = ((float)y - fract->input.factor_shift_y) / (fract->input.factor_scale_y);
-	data.sqr_real = 0.0;
-	data.sqr_img = 0.0;
-	data.cx = data.creal - fract->input.factor_cx;
-	data.cy = data.cimg + fract->input.factor_cy;
+	data = (struct s_classic_data){
+		.creal = ((float)x - fract->input.factor_shift_x) / (fract->input.factor_scale_x),
+		.cimg  = ((float)y - fract->input.factor_shift_y) / (fract->input.factor_scale_y),
+		.cx = data.creal - fract->input.factor_cx,
+		.cy = data.cimg + fract->input.factor_cy,
+	};
 	while (iter > 0 && data.sqr_real + data.sqr_img < 4.0)
 	{
 		data.sqr_real = data.creal * data.creal;
