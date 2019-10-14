@@ -64,9 +64,8 @@ struct				s_options
 };
 
 int dispatch(const char **argv, const struct s_options *options);
-uint32_t			poll_events(SDL_Window *window,
-								struct s_fractal *fractal,
-								struct s_rgba_map *pixels);
+uint32_t
+poll_events(SDL_Window *window, struct s_fractal *fractal, struct s_rgba_map *pixels, const struct s_options *options);
 void				render_metadata(SDL_Window *window,
 								struct s_fractal *fractal,
 								struct s_rgba_map *pixels);

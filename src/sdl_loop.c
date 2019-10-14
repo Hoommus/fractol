@@ -89,16 +89,17 @@ noreturn void		sdl_game_loop(SDL_Window *window,
 									struct s_rgba_map *pixels,
 									const struct s_options *restrict options)
 {
-//	const void		*window_pixels = SDL_GetWindowSurface(window)->pixels;
+	void			*window_pixels;
 	struct timeval	start;
 	struct timeval	end;
 	uint32_t		ret;
 
 	fractal->input.is_avx = true;
+	window_pixels = SDL_GetWindowSurface(window)->pixels;
 	while (true)
 	{
 		SDL_Delay(10);
-		ret = poll_events(window, fractal, pixels);
+		ret = poll_events(window, fractal, pixels, options);
 		if (!(ret & UI_FEEDBACK_REDRAW))
 			continue ;
 		if ((ret & UI_FEEDBACK_AVX))
@@ -108,11 +109,11 @@ noreturn void		sdl_game_loop(SDL_Window *window,
 			if (options->opts & OPTION_VERBOSE)
 				gettimeofday(&start, NULL);
 			if (options->opts & OPTION_THREADED)
-				calculate_fractal_threaded(fractal, pixels, SDL_GetWindowSurface(window)->pixels, options->threads);
+				calculate_fractal_threaded(fractal, pixels, window_pixels, options->threads);
 			else if (fractal->input.is_avx)
-				calculate_fractal_avx(fractal, pixels, SDL_GetWindowSurface(window)->pixels);
+				calculate_fractal_avx(fractal, pixels, window_pixels);
 			else
-				calculate_fractal(fractal, pixels, SDL_GetWindowSurface(window)->pixels);
+				calculate_fractal(fractal, pixels, window_pixels);
 			if (options->opts & OPTION_VERBOSE)
 			{
 				gettimeofday(&end, NULL);

@@ -1,22 +1,11 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   julia.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/09/29 18:24:34 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/29 20:59:40 by vtarasiu         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 
 #include "fractals.h"
 
 #define SET1(a)   _mm256_set1_pd((a))
 
 static inline void	init_registers(struct s_avx_data *restrict data,
-											uint32_t x,
-											uint32_t y)
+									 uint32_t x,
+									 uint32_t y)
 {
 	const struct s_fractal	*fract = data->fractal;
 
@@ -34,7 +23,7 @@ static inline void	init_registers(struct s_avx_data *restrict data,
 	data->iters = _mm256_set1_pd(fract->max_iterations - 1);
 }
 
-uint32_t			julia_avx2(const struct s_fractal *restrict fract,
+uint32_t			julia_abs_avx2(const struct s_fractal *restrict fract,
 								struct s_rgba_map *restrict pixels,
 								uint32_t x,
 								uint32_t y)
@@ -46,6 +35,8 @@ uint32_t			julia_avx2(const struct s_fractal *restrict fract,
 	init_registers(&d, x, y);
 	while (true)
 	{
+		d.creal = _mm256_max_pd(d.creal, _mm256_sub_pd(SET1(0.0), d.creal));
+		d.cimg = _mm256_max_pd(d.cimg, _mm256_sub_pd(SET1(0.0), d.cimg));
 		d.sqr_real = _mm256_mul_pd(d.creal, d.creal);
 		d.sqr_img = _mm256_mul_pd(d.cimg, d.cimg);
 		d.tmp = _mm256_mul_pd(_mm256_mul_pd(d.creal, d.cimg), SET1(2.0));
@@ -58,15 +49,12 @@ uint32_t			julia_avx2(const struct s_fractal *restrict fract,
 			break ;
 	}
 	_mm256_store_pd(i, d.iters);
-	colorize_pixels(pixels, fract->gradient_map, 4,
-					x + 0, y, (int)i[0],
-					x + 1, y, (int)i[1],
-					x + 2, y, (int)i[2],
-					x + 3, y, (int)i[3]);
+	colorize_pixels(pixels, fract->gradient_map, 4, x + 0, y,
+					(int)i[0], x + 1, y, (int)i[1], x + 2, y, (int)i[2], x + 3, y, (int)i[3]);
 	return (0);
 }
 
-uint32_t			julia_pixel(const struct s_fractal *restrict fract,
+uint32_t			julia_abs_pixel(const struct s_fractal *restrict fract,
 								 struct s_rgba_map *restrict pixels,
 								 uint32_t x,
 								 uint32_t y)
@@ -75,15 +63,16 @@ uint32_t			julia_pixel(const struct s_fractal *restrict fract,
 	double					tmp;
 	uint32_t				iter;
 
+	bzero(&data, sizeof(data));
 	iter = fract->max_iterations;
-	data = (struct s_classic_data) {
-		.creal = ((float)x - fract->input.factor_shift_x) / (fract->input.factor_scale_x),
-		.cimg = ((float)y - fract->input.factor_shift_y) / (fract->input.factor_scale_y),
-		.cx = fract->input.factor_cx,
-		.cy = fract->input.factor_cy
-	};
+	data.creal = ((float)x - fract->input.factor_shift_x) / (fract->input.factor_scale_x);
+	data.cimg  = ((float)y - fract->input.factor_shift_y) / (fract->input.factor_scale_y);
+	data.cx = fract->input.factor_cx;
+	data.cy = fract->input.factor_cy;
 	while (iter > 0 && data.sqr_real + data.sqr_img < 4.0)
 	{
+		data.creal = fabs(data.creal);
+		data.cimg = fabs(data.cimg);
 		data.sqr_real = data.creal * data.creal;
 		data.sqr_img = data.cimg * data.cimg;
 		tmp = 2.0 * data.creal * data.cimg;
@@ -94,3 +83,4 @@ uint32_t			julia_pixel(const struct s_fractal *restrict fract,
 	colorize_pixels(pixels, fract->gradient_map, 1, x, y, iter);
 	return (0);
 }
+

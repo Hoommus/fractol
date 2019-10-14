@@ -78,17 +78,17 @@ __unused const static struct option	g_opts[] = {
 static int				help(void)
 {
 	ft_printf("usage: fractol [-h] [<options>...] fractal_name\n"
-		"\t-h, --help  - print the following message and exit\n"
-		"\t-t [number] - compute fractal on CPU in parallel with a [number] of threads.\n"
-		"\t-t=[number]   Overrides --avx.\n"
-		"\t--classic   - use 'classic' fractal calculation function\n"
-		"\t--avx       - use AVX and AVX2 instructions, if possible. Emits error\n"
-		"\t              message, if it isn't possible and runs in a classic way.\n"
-		"\t              Defaults to `true'.\n"
-		"\t--sdl       - use SDL2 instead of MLX. Higher precedence over --mlx.\n"
-		"\t--mlx       - use MLX instead of SDL2\n"
-		"\t--verbose   - print to controlling terminal additional info: render speeds, warnings etc.\n"
-		"\t              Might have a minor impact on performance\n");
+		"    -h, --help  - print the following message and exit\n"
+		"    -t [number] - compute fractal on CPU in parallel with a [number] of threads.\n"
+		"    -t=[number]   Overrides --avx.\n"
+		"    --classic   - use 'classic' fractal calculation function\n"
+		"    --avx       - use AVX and AVX2 instructions, if possible. Emits error\n"
+		"                  message, if it isn't possible and runs in a classic way.\n"
+		"                  Defaults to `true'.\n"
+		"    --sdl       - use SDL2 instead of MLX. Higher precedence over --mlx.\n"
+		"    --mlx       - use MLX instead of SDL2\n"
+		"    --verbose   - print to controlling terminal additional info: render speeds,\n"
+		"                  warnings etc. Might have a minor performance impact\n");
 	return (0);
 }
 

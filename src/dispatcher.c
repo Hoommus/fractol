@@ -6,7 +6,7 @@
 /*   By: vtarasiu <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/21 21:52:16 by vtarasiu          #+#    #+#             */
-/*   Updated: 2019/09/23 20:54:14 by vtarasiu         ###   ########.fr       */
+/*   Updated: 2019/10/05 18:39:14 by vtarasiu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ static const struct s_command	g_dispatchable[] =
 			&mandel_pixel,
 			&mandel_avx2,
 			NULL,
-			{0},
+			{0, .locked = 0}
 		}
 	},
 	{
@@ -35,7 +35,29 @@ static const struct s_command	g_dispatchable[] =
 			&julia_pixel,
 			&julia_avx2,
 			NULL,
-			{0},
+			{0, .locked = 0}
+		}
+	},
+	{
+		.name = "ship",
+		.temp_late = {
+			0,
+			100,
+			&ship_pixel,
+			&ship_avx2,
+			NULL,
+			{0, .locked = 0}
+		}
+	},
+	{
+		.name = "julia_abs",
+		.temp_late = {
+			0,
+			100,
+			&julia_abs_pixel,
+			&julia_abs_avx2,
+			NULL,
+			{0, .locked = 0}
 		}
 	},
 	{
@@ -52,9 +74,15 @@ static inline struct s_rgba_map	*init_common(struct s_fractal *fractal)
 	pixels->width = 1200;
 	pixels->map = ft_memalloc(sizeof(uint32_t) * pixels->width * pixels->height + 4);
 	pixels->map_metadata = ft_memalloc(sizeof(struct s_pixel_meta) * pixels->width * pixels->height + 4);
+//	fractal->gradient_map = grad_create_from(GRADIENT_LINEAR, fractal->max_iterations,
+//		4,
+//	COLOR_GOLDEN_YELLOW, 0, COLOR_WARLOCK_PURPLE, 10, COLOR_MACHARIUS_SOLAR_ORANGE, 30, COLOR_ULTRAMARINE, fractal->max_iterations);
 	fractal->gradient_map = grad_create_from(GRADIENT_LINEAR, fractal->max_iterations,
 		4,
-	COLOR_GOLDEN_YELLOW, 0, COLOR_WARLOCK_PURPLE, 10, COLOR_BLOOD_RED, 30, COLOR_ULTRAMARINE, fractal->max_iterations);
+	COLOR_GOLDEN_YELLOW, 0, 0xFFA216, 10, COLOR_MACHARIUS_SOLAR_ORANGE, 50, 0x543100, fractal->max_iterations);
+//	fractal->gradient_map = grad_create_from(GRADIENT_LINEAR, fractal->max_iterations,
+//		2,
+//	COLOR_WHITE, 20, COLOR_100_BLACK, 100);
 	fractal->gradient_map->is_reverse = false;
 	grad_cache_colors(fractal->gradient_map);
 	return (pixels);
