@@ -8,17 +8,18 @@ static inline void	init_registers(struct s_avx_data *restrict data,
 									 uint32_t y)
 {
 	const struct s_fractal	*fract = data->fractal;
+	const struct s_input	input = data->fractal->input;
 
 	data->iters = _mm256_setzero_pd();
 	data->iter = _mm256_set1_pd(fract->max_iterations - 1);
 	data->creal = _mm256_set_pd(
-		(x - 0. - fract->input.factor_shift_x) / (fract->input.factor_scale_x),
-		(x - 1. - fract->input.factor_shift_x) / (fract->input.factor_scale_x),
-		(x - 2. - fract->input.factor_shift_x) / (fract->input.factor_scale_x),
-		(x - 3. - fract->input.factor_shift_x) / (fract->input.factor_scale_x));
-	data->cimg  = _mm256_set1_pd(((y) - fract->input.factor_shift_y) / (fract->input.factor_scale_y));
-	data->cx = _mm256_set1_pd(fract->input.factor_cx);
-	data->cy = _mm256_set1_pd(fract->input.factor_cy);
+		(x - 0. - input.factor_shift_x) / (input.factor_scale_x),
+		(x - 1. - input.factor_shift_x) / (input.factor_scale_x),
+		(x - 2. - input.factor_shift_x) / (input.factor_scale_x),
+		(x - 3. - input.factor_shift_x) / (input.factor_scale_x));
+	data->cimg  = _mm256_set1_pd(((y) - input.factor_shift_y) / (input.factor_scale_y));
+	data->cx = _mm256_set1_pd(input.factor_cx);
+	data->cy = _mm256_set1_pd(input.factor_cy);
 	data->iters_mask = _mm256_set1_pd(1);
 	data->iters = _mm256_set1_pd(fract->max_iterations - 1);
 }
@@ -35,8 +36,8 @@ uint32_t			julia_abs_avx2(const struct s_fractal *restrict fract,
 	init_registers(&d, x, y);
 	while (true)
 	{
-		d.creal = _mm256_max_pd(d.creal, _mm256_sub_pd(SET1(0.0), d.creal));
-		d.cimg = _mm256_max_pd(d.cimg, _mm256_sub_pd(SET1(0.0), d.cimg));
+		d.creal = _mm256_max_pd(d.creal, -d.creal);
+		d.cimg = _mm256_max_pd(d.cimg, -d.cimg);
 		d.sqr_real = _mm256_mul_pd(d.creal, d.creal);
 		d.sqr_img = _mm256_mul_pd(d.cimg, d.cimg);
 		d.tmp = _mm256_mul_pd(_mm256_mul_pd(d.creal, d.cimg), SET1(2.0));

@@ -73,7 +73,7 @@ void				render_metadata(SDL_Window *window,
 noreturn void		sdl_game_loop(SDL_Window *window, struct s_fractal *fractal,
 								struct s_rgba_map *pixels,
 								const struct s_options *restrict options);
-noreturn void mlx_game_loop(void *mlx_ptr, void *mlx_window, struct s_fractal *fractal, struct s_rgba_map *pixels,
+noreturn void		mlx_game_loop(void *mlx_ptr, void *mlx_window, struct s_fractal *fractal, struct s_rgba_map *pixels,
 							const struct s_options *options);
 
 noreturn void		quit(int status);

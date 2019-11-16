@@ -74,16 +74,8 @@ static inline struct s_rgba_map	*init_common(struct s_fractal *fractal)
 	pixels->width = 1200;
 	pixels->map = ft_memalloc(sizeof(uint32_t) * pixels->width * pixels->height + 4);
 	pixels->map_metadata = ft_memalloc(sizeof(struct s_pixel_meta) * pixels->width * pixels->height + 4);
-//	fractal->gradient_map = grad_create_from(GRADIENT_LINEAR, fractal->max_iterations,
-//		4,
-//	COLOR_GOLDEN_YELLOW, 0, COLOR_WARLOCK_PURPLE, 10, COLOR_MACHARIUS_SOLAR_ORANGE, 30, COLOR_ULTRAMARINE, fractal->max_iterations);
-	fractal->gradient_map = grad_create_from(GRADIENT_LINEAR, fractal->max_iterations,
-		4,
-	COLOR_GOLDEN_YELLOW, 0, 0xFFA216, 10, COLOR_MACHARIUS_SOLAR_ORANGE, 50, 0x543100, fractal->max_iterations);
-//	fractal->gradient_map = grad_create_from(GRADIENT_LINEAR, fractal->max_iterations,
-//		2,
-//	COLOR_WHITE, 20, COLOR_100_BLACK, 100);
-	fractal->gradient_map->is_reverse = false;
+	grad_table_init();
+	fractal->gradient_map = grad_from_table(0);
 	grad_cache_colors(fractal->gradient_map);
 	return (pixels);
 }
@@ -145,8 +137,7 @@ int								dispatch(const char **argv, const struct s_options *options)
 		{
 			if (ft_strcmp(argv[0], g_dispatchable[i].name) == 0)
 			{
-				if (options->opts & OPTION_NO_GUI);
-				else if (options->opts & OPTION_SDL)
+				if (options->opts & OPTION_SDL)
 					status = forknrun_sdl(g_dispatchable + i, options);
 				else
 					status = forknrun_mlx(g_dispatchable + i, options);

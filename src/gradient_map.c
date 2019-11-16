@@ -117,7 +117,10 @@ static struct s_hsv			*inter_linear(const struct s_hsv *restrict left,
 		result->h = left->h + d * location;
 	else
 		result->h = left->h;
-	result->h += result->h < 0 ? 360.0 : 0;
+	if (result->h > 360.)
+		result->h -= 360.;
+	else if (result->h < 0.)
+		result->h += 360.0;
 	result->s = left->s + (right->s - left->s) * location;
 	result->v = left->v + (right->v - left->v) * location;
 	return (result);

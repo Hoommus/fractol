@@ -67,4 +67,8 @@ struct s_gradient	*grad_cache_colors(struct s_gradient *gradient);
 uint32_t			grad_get_iter_color(struct s_gradient *gradient,
 												uint32_t iteration);
 
+struct s_gradient	*grad_from_table(uint32_t i);
+void				grad_table_init(void);
+
+
 #endif

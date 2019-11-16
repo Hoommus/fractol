@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include <assert.h>
-#include "fractol_common.h"
 #include "fractol_gradients.h"
 
 static inline double	max(double a, double b, double c)
@@ -52,7 +51,6 @@ struct s_hsv		*rgb2hsv(uint32_t argb, struct s_hsv *restrict dst)
 		dst->h = 60. * (4 + (r - g) / (max_color - min_color));
 	if (dst->h < 0.)
 		dst->h += 360.;
-	dst->h = roundf(dst->h);
 	if (max_color == 0)
 		dst->s = 0;
 	else

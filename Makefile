@@ -14,7 +14,7 @@ CC = clang
 NAME = fractol
 
 CFLAGS = -mavx -mavx2 -Wall -Wextra -Werror \
-         -g -O2 #-fsanitize=thread #
+         -g -O2 #-fsanitize=address #
 
 LIB_DIR = lib/
 
@@ -35,6 +35,7 @@ FRACTOL_SRC_DIR = src/
 FRACTOL_SRC = calculators.c \
               colorizer.c \
               dispatcher.c \
+              gradients.c \
               gradient_map.c \
               main.c \
               quit.c \

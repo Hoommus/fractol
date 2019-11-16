@@ -45,6 +45,12 @@ static inline uint32_t	sdl_keydown(SDL_Scancode scancode,
 		fractal->gradient_map->max_iterations = fractal->max_iterations;
 		grad_cache_colors(fractal->gradient_map);
 	}
+	else if (scancode >= SDL_SCANCODE_1 && scancode <= SDL_SCANCODE_0)
+	{
+		fractal->gradient_map = grad_from_table(scancode - 30);
+		fractal->gradient_map->max_iterations = fractal->max_iterations;
+		grad_cache_colors(fractal->gradient_map);
+	}
 	return (feedback);
 }
 

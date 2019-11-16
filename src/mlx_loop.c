@@ -31,14 +31,14 @@ int				put_image(void *param)
 	struct timeval				start;
 	struct timeval				end;
 	void						*display_pixels;
-	int							dummy[3];
+	int							d[3];
 
-	display_pixels = mlx_get_data_addr(crutch->mlx_image, dummy, dummy + 1, dummy + 2);
+	display_pixels = mlx_get_data_addr(crutch->mlx_image, d, d + 1, d + 2);
 	if (crutch->options->opts & OPTION_VERBOSE)
 		gettimeofday(&start, NULL);
 	if (crutch->options->opts & OPTION_THREADED)
 		calculate_fractal_threaded(crutch->fractal, crutch->pixels,
-								   display_pixels, crutch->options->threads);
+								display_pixels, crutch->options->threads);
 	else if (crutch->fractal->input.is_avx)
 		calculate_fractal_avx(crutch->fractal, crutch->pixels, display_pixels);
 	else
@@ -64,7 +64,10 @@ int				iterations_hook(int scancode, void *param)
 		grad_cache_colors(crutch->fractal->gradient_map);
 	}
 	if (scancode == 15)
+	{
+		ft_printf("scancode 15\n");
 		crutch->fractal->gradient_map->is_reverse = !crutch->fractal->gradient_map->is_reverse;
+	}
 	put_image(param);
 	return (1);
 }
@@ -112,9 +115,10 @@ int				key_hooks(int scancode, void *param)
 {
 	int							status;
 
-//	ft_printf("%s %d scancode\n", __func__, scancode);
 	if (scancode == 53 || scancode == 12)
 		quit_mlx(param);
+	if (scancode == 0)
+		((struct s_mlx_crutch *)param)->fractal->input.is_avx = !(((struct s_mlx_crutch *)param)->fractal->input.is_avx);
 	status = arrows_hook(scancode, param);
 	status |= iterations_hook(scancode, param);
 	return (status);

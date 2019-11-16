@@ -55,6 +55,8 @@
 **
 */
 
+#define FRACTOL_USAGE_STR "usage: fractol [-h] [<options>...] fractal_name\n"
+
 __unused const static struct option	g_opts[] = {
 	{"help", no_argument, NULL, 'h'},
 	{"quiet", no_argument, NULL, 'q'},
@@ -77,16 +79,17 @@ __unused const static struct option	g_opts[] = {
 
 static int				help(void)
 {
-	ft_printf("usage: fractol [-h] [<options>...] fractal_name\n"
+
+	ft_printf(FRACTOL_USAGE_STR
 		"    -h, --help  - print the following message and exit\n"
 		"    -t [number] - compute fractal on CPU in parallel with a [number] of threads.\n"
-		"    -t=[number]   Overrides --avx.\n"
+		"    -t=[number]\n"
 		"    --classic   - use 'classic' fractal calculation function\n"
 		"    --avx       - use AVX and AVX2 instructions, if possible. Emits error\n"
 		"                  message, if it isn't possible and runs in a classic way.\n"
 		"                  Defaults to `true'.\n"
-		"    --sdl       - use SDL2 instead of MLX. Higher precedence over --mlx.\n"
-		"    --mlx       - use MLX instead of SDL2\n"
+		"    --sdl       - use SDL2 instead of MLX\n"
+		"    --mlx       - use MLX instead of SDL2. Higher precedence over --sdl.\n"
 		"    --verbose   - print to controlling terminal additional info: render speeds,\n"
 		"                  warnings etc. Might have a minor performance impact\n");
 	return (0);
@@ -102,32 +105,29 @@ static void				cleanup(void)
 int						parse_flags(int argc, const char **argv, struct s_options *opts)
 {
 	int		i;
-	__unused int		j;
 
-	i = 0;
-	while (i < argc && argv[i][0] == '-')
-	{
-		if (ft_strncmp(argv[i], "-t", 2) == 0 || ft_strncmp(argv[i], "-j", 2) == 0)
+	i = -1;
+	while (++i < argc && argv[i][0] == '-')
+		if (!ft_strncmp(argv[i], "-t", 2) || !ft_strncmp(argv[i], "-j", 2))
 		{
 			opts->threads = ft_atoi(argv[i][2] == '=' ? argv[i] + 3 : argv[++i]);
 			opts->opts |= OPTION_THREADED;
 			if (opts->threads <= 0 || opts->threads > 64)
 			{
+				opts->threads = opts->threads <= 0 ? 4 : 64;
 				ft_dprintf(2, "warning: invalid threads quantity: "
-					"must be in range between 1 and 64.\n    Running at 4 threads\n");
-				opts->threads = 4;
+					"must be in range between 1 and 64.\n"
+					"Running at %d threads\n", opts->threads);
 			}
 		}
-		else if (ft_strcmp(argv[i], "--mlx") == 0)
+		else if (ft_strequ(argv[i], "--mlx"))
 			opts->opts |= OPTION_MLX;
-		else if (ft_strcmp(argv[i], "--sdl") == 0)
+		else if (ft_strequ(argv[i], "--sdl"))
 			opts->opts |= OPTION_SDL;
-		else if (ft_strcmp(argv[i], "-h") == 0 || ft_strcmp(argv[i], "--help") == 0)
+		else if (ft_strequ(argv[i], "-h") || ft_strequ(argv[i], "--help"))
 			opts->opts |= OPTION_HELP;
-		else if (ft_strcmp(argv[i], "--verbose") == 0)
+		else if (ft_strequ(argv[i], "--verbose"))
 			opts->opts |= OPTION_VERBOSE;
-		i++;
-	}
 	return (i);
 }
 
@@ -137,7 +137,7 @@ int							main(int argc, const char **argv)
 
 	ft_bzero(&options, sizeof(struct s_options));
 	if (argc == 1)
-		return ((ft_dprintf(2, "usage: fractol [-t] fractal_name\n") & 0) | 1);
+		return ((ft_dprintf(2, FRACTOL_USAGE_STR) & 0) | 1);
 	argv += parse_flags(argc - 1, argv + 1, &options) + 1;
 	if (options.opts & OPTION_HELP)
 		return (help());

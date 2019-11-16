@@ -30,10 +30,7 @@ void						*tpool_routine(void *arg)
 		pthread_mutex_lock(&g_tpool->job_mutex);
 		if (g_tpool->dies ||
 			pthread_cond_wait(&g_tpool->job_cond, &g_tpool->job_mutex) != 0)
-		{
-			pthread_mutex_unlock(&g_tpool->job_mutex);
-			break ;
-		}
+			return ((void *)(long)(pthread_mutex_unlock(&g_tpool->job_mutex) & 0));
 		if (task->fractal == NULL)
 		{
 			pthread_mutex_unlock(&g_tpool->job_mutex);
@@ -45,13 +42,12 @@ void						*tpool_routine(void *arg)
 		while (point < task->region_start + task->region_length)
 		{
 			func(task->fractal, task->pixels, point % task->pixels->width,
-				 point / task->pixels->width);
+				point / task->pixels->width);
 			point += task->fractal->input.is_avx ? 4 : 1;
 		}
 		task->fractal = NULL;
 		atomic_fetch_and(&g_tpool->must_finish, ~task->thread_bit);
 	}
-	return (NULL);
 }
 
 void						tpool_init(int size)
@@ -86,6 +82,8 @@ void						tpool_init(int size)
 	pthread_attr_destroy(&attr);
 }
 
+#ifdef __APPLE__
+
 int							tpool_add_task(t_task *task, bool start_right_away)
 {
 	int		i;
@@ -104,13 +102,38 @@ int							tpool_add_task(t_task *task, bool start_right_away)
 			g_tpool->threads[i].tfractal.region_start = task->region_start;
 			atomic_fetch_or(&g_tpool->must_finish, g_tpool->threads[i].tfractal.thread_bit);
 			if (start_right_away)
-			{
-#ifdef __APPLE__
-				pthread_cond_signal_thread_np(&g_tpool->job_cond, g_tpool->threads[i].pthread);
+				pthread_cond_signal_thread_np(&g_tpool->job_cond,
+					g_tpool->threads[i].pthread);
+			status = 0;
+			break;
+		}
+	}
+	pthread_mutex_unlock(&g_tpool->pool_mutex);
+	return (status);
+}
+
+
 #else
+
+int							tpool_add_task(t_task *task, bool start_right_away)
+{
+	int		i;
+	int		status;
+
+	i = -1;
+	status = -1;
+	pthread_mutex_lock(&g_tpool->pool_mutex);
+	while (++i < g_tpool->threads_number)
+	{
+		if (!(g_tpool->must_finish & (1ULL << i)))
+		{
+			g_tpool->threads[i].tfractal.fractal = task->fractal;
+			g_tpool->threads[i].tfractal.pixels = task->pixels;
+			g_tpool->threads[i].tfractal.region_length = task->region_length;
+			g_tpool->threads[i].tfractal.region_start = task->region_start;
+			atomic_fetch_or(&g_tpool->must_finish, g_tpool->threads[i].tfractal.thread_bit);
+			if (start_right_away)
 				pthread_cond_broadcast(&g_tpool->job_cond);
-#endif
-			}
 		status = 0;
 		break;
 		}
@@ -118,6 +141,9 @@ int							tpool_add_task(t_task *task, bool start_right_away)
 	pthread_mutex_unlock(&g_tpool->pool_mutex);
 	return (status);
 }
+
+#endif
+
 
 int							tpool_cleanup(void)
 {
