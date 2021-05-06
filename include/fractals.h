@@ -16,6 +16,7 @@
 # include <limits.h>
 # include <stdbool.h>
 # include <math.h>
+# include <string.h>
 
 # include <immintrin.h>
 

@@ -16,6 +16,7 @@
 # include <stdint.h>
 # include <stddef.h>
 # include <stdbool.h>
+# include <math.h>
 # include "fractol_gradients.h"
 
 struct				s_fractal;

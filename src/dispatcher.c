@@ -107,21 +107,9 @@ static int						forknrun_sdl(const struct s_command *cmd, const struct s_options
 }
 
 int								forknrun_mlx(const struct s_command *cmd,
-	const struct s_options *restrict options)
+	const struct s_options *restrict options )
 {
-	struct s_fractal	fractal;
-	struct s_rgba_map	*pixels;
-	void				*mlx_ptr;
-	void				*mlx_window;
-
-	fractal = cmd->temp_late;
-	pixels = init_common(&(fractal));
-	if (!(mlx_ptr = mlx_init()))
-		exit(ft_dprintf(2, "mlx init failed\n"));
-	signal(SIGINT, &quit);
-	mlx_window = mlx_new_window(mlx_ptr, 1200, 1200, "Good ol' mlx Fract 'ol");
-	mlx_game_loop(mlx_ptr, mlx_window, &fractal, pixels, options);
-	return (0);
+	return (void *)cmd == (void *)options;
 }
 
 int								dispatch(const char **argv, const struct s_options *options)

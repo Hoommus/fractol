@@ -24,37 +24,34 @@
 #  define THREAD_POOL_CAPACITY 4
 # endif
 
-typedef struct		s_task
-{
-	struct s_fractal	*fractal;
-	struct s_rgba_map	*pixels;
-	uint32_t			region_start;
-	uint32_t			region_length;
-	uint64_t			thread_number;
-	uint64_t			thread_bit;
-	uint64_t			thread_bit_inverse;
-}					t_task;
+typedef struct s_task {
+    struct s_fractal *fractal;
+    struct s_rgba_map *pixels;
+    uint32_t region_start;
+    uint32_t region_length;
+    uint64_t thread_number;
+    uint64_t thread_bit;
+    uint64_t thread_bit_inverse;
+} t_task;
 
-struct				s_calc_thread
-{
-	pthread_t		pthread;
-	t_task			tfractal;
+struct s_calc_thread {
+    pthread_t pthread;
+    t_task tfractal;
 };
 
-struct				s_thread_pool
-{
-	pthread_mutex_t			pool_mutex;
-	pthread_mutex_t			job_mutex;
-	pthread_cond_t			job_cond;
-	struct s_calc_thread	*threads;
-	int32_t					threads_number;
-	atomic_ullong			must_finish;
-	atomic_bool				dies;
+struct s_thread_pool {
+    pthread_mutex_t pool_mutex;
+    pthread_mutex_t job_mutex;
+    pthread_cond_t job_cond;
+    struct s_calc_thread *threads;
+    int32_t threads_number;
+    atomic_ullong must_finish;
+    atomic_bool dies;
 };
 
-void						tpool_init(int size);
-int							tpool_add_task(t_task *task, bool start_right_away);
-int							tpool_cleanup(void);
-int							tpool_runnwait(void);
+void tpool_init(int size);
+int tpool_add_task(t_task *task, bool start_right_away);
+int tpool_cleanup(void);
+int tpool_runnwait(void);
 
 #endif

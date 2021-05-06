@@ -12,8 +12,6 @@
 
 #include "fractol_common.h"
 
-#define SCANCODE key.keysym.scancode
-
 static inline uint32_t	sdl_keydown(SDL_Scancode scancode,
 									struct s_fractal *restrict fractal,
 									const struct s_options *restrict options)
@@ -66,8 +64,8 @@ poll_events(SDL_Window *restrict window,
 	feedback = UI_FEEDBACK_NEUTRAL;
 	while (SDL_PollEvent(&e))
 		if (e.type == SDL_QUIT ||
-			(e.type == SDL_KEYDOWN && e.SCANCODE == SDL_SCANCODE_ESCAPE) ||
-			(e.type == SDL_KEYDOWN && e.SCANCODE == SDL_SCANCODE_Q))
+			(e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) ||
+			(e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_Q))
 		{
 			SDL_DestroyWindow(window);
 			exit(0);

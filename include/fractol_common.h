@@ -14,6 +14,7 @@
 # define FRACTOL_COMMON_H
 
 # if __has_include("mlx.h")
+#  define CONFIG_HAS_MLX
 #  include <mlx.h>
 # endif
 
@@ -23,12 +24,13 @@
 # include <stdint.h>
 # include <stdnoreturn.h>
 # include <stdarg.h>
+# include <signal.h>
 # include "libft.h"
 # include "ft_printf.h"
 # include "fractol_data.h"
 
-# include <SDL.h>
-# include <SDL_ttf.h>
+# include <SDL2/SDL.h>
+# include <SDL2/SDL_ttf.h>
 
 #define UI_FEEDBACK_REDRAW       0x0001U
 #define UI_FEEDBACK_AVX          0x0002U
@@ -73,8 +75,10 @@ void				render_metadata(SDL_Window *window,
 noreturn void		sdl_game_loop(SDL_Window *window, struct s_fractal *fractal,
 								struct s_rgba_map *pixels,
 								const struct s_options *restrict options);
+#ifdef CONFIG_HAS_MLX
 noreturn void		mlx_game_loop(void *mlx_ptr, void *mlx_window, struct s_fractal *fractal, struct s_rgba_map *pixels,
 							const struct s_options *options);
+#endif
 
 noreturn void		quit(int status);
 
