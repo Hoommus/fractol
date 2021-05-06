@@ -51,7 +51,7 @@ void tpool_init(int size) {
 	pthread_attr_t thread_attr;
 	int i;
 
-	g_tpool = ft_memalloc(sizeof(struct s_thread_pool));
+	g_tpool = calloc(1, sizeof(struct s_thread_pool));
 	g_tpool->threads_number = size;
 	pthread_mutexattr_init(&mutex_attr);
 	pthread_mutex_init(&g_tpool->pool_mutex, &mutex_attr);
@@ -59,7 +59,7 @@ void tpool_init(int size) {
 	pthread_cond_init(&g_tpool->job_cond, NULL);
 	pthread_attr_init(&thread_attr);
 	pthread_attr_setdetachstate(&thread_attr, PTHREAD_CREATE_DETACHED);
-	g_tpool->threads = ft_memalloc(sizeof(struct s_calc_thread) * size);
+	g_tpool->threads = calloc(1, sizeof(struct s_calc_thread) * size);
 	i = -1;
 	while (++i < size) {
 		g_tpool->threads[i].tfractal.thread_number = i;

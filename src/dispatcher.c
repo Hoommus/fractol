@@ -69,11 +69,11 @@ static inline struct s_rgba_map	*init_common(struct s_fractal *fractal)
 {
 	struct s_rgba_map	*pixels;
 
-	pixels = ft_memalloc(sizeof(struct s_rgba_map));
+	pixels = calloc(1, sizeof(struct s_rgba_map));
 	pixels->height = 1200;
 	pixels->width = 1200;
-	pixels->map = ft_memalloc(sizeof(uint32_t) * pixels->width * pixels->height + 4);
-	pixels->map_metadata = ft_memalloc(sizeof(struct s_pixel_meta) * pixels->width * pixels->height + 4);
+	pixels->map = calloc(1, sizeof(uint32_t) * pixels->width * pixels->height + 4);
+	pixels->map_metadata = calloc(1, sizeof(struct s_pixel_meta) * pixels->width * pixels->height + 4);
 	grad_table_init();
 	fractal->gradient_map = grad_from_table(0);
 	grad_cache_colors(fractal->gradient_map);

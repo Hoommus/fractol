@@ -81,8 +81,8 @@ poll_events(SDL_Window *restrict window,
 			SDL_GetWindowSize(window, &(pixels->width), &(pixels->height));
 			free(pixels->map);
 			free(pixels->map_metadata);
-			pixels->map = ft_memalloc(sizeof(uint32_t) * pixels->width * pixels->height);
-			pixels->map_metadata = ft_memalloc(sizeof(uint32_t) * pixels->width * pixels->height);
+			pixels->map = calloc(1, sizeof(uint32_t) * pixels->width * pixels->height);
+			pixels->map_metadata = calloc(1, sizeof(uint32_t) * pixels->width * pixels->height);
 			feedback |= UI_FEEDBACK_REDRAW;
 		}
 		else if (e.type == SDL_MOUSEMOTION)

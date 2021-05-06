@@ -18,7 +18,7 @@ struct s_gradient_point		*grad_create_point(uint32_t color, uint32_t location, u
 {
 	struct s_gradient_point	*point;
 
-	point = ft_memalloc(sizeof(struct s_gradient_point));
+	point = calloc(1, sizeof(struct s_gradient_point));
 	point->rgba = color;
 	point->location = (double)location / (double)max;
 	rgb2hsv(color, &(point->hsv));
@@ -69,7 +69,7 @@ struct s_gradient			*grad_create_from(enum e_gradient_type type,
 	struct s_gradient	*gradient;
 
 	va_start(args, points_quantity);
-	gradient = ft_memalloc(sizeof(struct s_gradient));
+	gradient = calloc(1, sizeof(struct s_gradient));
 	gradient->type = type;
 	gradient->max_iterations = max_iterations;
 	while (points_quantity)
@@ -88,7 +88,7 @@ struct s_gradient			*grad_cache_colors(struct s_gradient *gradient)
 
 	if (gradient->colors_cache)
 		ft_memdel((void **)&(gradient->colors_cache));
-	cache = ft_memalloc(sizeof(uint32_t) * (gradient->max_iterations + 1));
+	cache = calloc(1, sizeof(uint32_t) * (gradient->max_iterations + 1));
 	i = 0;
 	while (i < gradient->max_iterations)
 	{
