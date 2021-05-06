@@ -19,30 +19,28 @@
 ** TODO: make this comment better
 */
 
-void		colorize_pixels(struct s_rgba_map *restrict pixels,
-							struct s_gradient *restrict map,
-							int arg_points,
-							...)
-{
-	int			i;
-	int32_t		x;
-	int32_t		y;
-	uint32_t	iteration;
-	va_list		args;
+void colorize_pixels(struct s_rgba_map *restrict pixels,
+					 struct s_gradient *restrict map,
+					 int arg_points,
+					 ...) {
+	int i;
+	int32_t x;
+	int32_t y;
+	uint32_t iteration;
+	va_list args;
 
 	va_start(args, arg_points);
 	i = 0;
-	while (i < arg_points)
-	{
+	while (i < arg_points) {
 		x = va_arg(args, int32_t);
 		y = va_arg(args, int32_t);
 		iteration = va_arg(args, int);
 		if (y * pixels->width + x == pixels->height * pixels->width)
-			break ;
+			break;
 		if (map && map->colors_cache)
 			pixels->map[y * pixels->width + x] =
-				map->colors_cache[map->is_reverse
-					? map->max_iterations - iteration : iteration];
+					map->colors_cache[map->is_reverse
+									  ? map->max_iterations - iteration : iteration];
 		else
 			pixels->map[y * pixels->width + x] = grad_get_iter_color(map, iteration);
 		pixels->map_metadata[y * pixels->width + x].iteration = iteration;

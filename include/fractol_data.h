@@ -19,84 +19,78 @@
 # include <math.h>
 # include "fractol_gradients.h"
 
-struct				s_fractal;
-struct				s_rgba_map;
+struct s_fractal;
+struct s_rgba_map;
 
-typedef uint32_t	(*t_fract_calc)(const struct s_fractal *restrict, struct s_rgba_map *restrict, uint32_t, uint32_t);
+typedef uint32_t    (*t_fract_calc)(const struct s_fractal *restrict, struct s_rgba_map *restrict, uint32_t, uint32_t);
 
-typedef struct		s_fractal
-{
-	uint64_t			flags;
-	uint32_t			max_iterations;
+typedef struct s_fractal {
+	uint64_t flags;
+	uint32_t max_iterations;
 
-	t_fract_calc		calc;
-	t_fract_calc		calc_avx;
+	t_fract_calc calc;
+	t_fract_calc calc_avx;
 
-	struct s_gradient	*gradient_map;
+	struct s_gradient *gradient_map;
 
-	struct				s_input
-	{
-		bool		is_avx;
-		bool		locked;
-		int			mouse_x;
-		int			mouse_y;
+	struct s_input {
+		bool is_avx;
+		bool locked;
+		int mouse_x;
+		int mouse_y;
 
-		int			mouse_cx;
-		int			mouse_cy;
+		int mouse_cx;
+		int mouse_cy;
 
-		double		x_min;
-		double		y_min;
+		double x_min;
+		double y_min;
 
-		double		x_max;
-		double		y_max;
+		double x_max;
+		double y_max;
 
-		double		shift_x;
-		double		shift_y;
+		double shift_x;
+		double shift_y;
 
-		double		factor_cx;
-		double		factor_cy;
+		double factor_cx;
+		double factor_cy;
 
-		double		factor_scale_x;
-		double		factor_scale_y;
+		double factor_scale_x;
+		double factor_scale_y;
 
-		double		factor_shift_x;
-		double		factor_shift_y;
+		double factor_shift_x;
+		double factor_shift_y;
 
-		double		scroll_depth;
-	}					input;
-}					t_fractal;
+		double scroll_depth;
+	} input;
+} t_fractal;
 
-struct				s_command
-{
-	const char			*name;
-	struct s_fractal	temp_late;
+struct s_command {
+	const char *name;
+	struct s_fractal temp_late;
 };
 
-struct				s_pixel_meta
-{
-	uint32_t	iteration;
+struct s_pixel_meta {
+	uint32_t iteration;
 };
 
-struct				s_rgba_map
-{
-	int					width;
-	int					height;
+struct s_rgba_map {
+	int width;
+	int height;
 
-	short				larger_dimension;
-	float				larger_dimension_half;
-	float				larger_dimension_quarter;
+	short larger_dimension;
+	float larger_dimension_half;
+	float larger_dimension_quarter;
 
-	uint32_t			*map;
-	struct s_pixel_meta	*map_metadata;
+	uint32_t *map;
+	struct s_pixel_meta *map_metadata;
 };
 
-enum				e_color
-{
-	COLOR_WHITE  = 0x00FFFFFF,
-	COLOR_100_BLACK  = 0x0,
-	COLOR_RED    = 0xFF0000,
-	COLOR_GREEN  = 0x00FF00,
-	COLOR_BLUE   = 0x0000FF,
+enum e_color {
+	COLOR_WHITE = 0x00FFFFFF,
+	COLOR_100_BLACK = 0x0,
+	COLOR_RED = 0xFF0000,
+	COLOR_GREEN = 0x00FF00,
+	COLOR_BLUE = 0x0000FF,
 	COLOR_YELLOW = 0xFFFF00,
 	COLOR_CHAOS_BLACK = 0x001522,
 	COLOR_ULTRAMARINE = 0x120A8F,

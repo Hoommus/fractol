@@ -104,5 +104,5 @@ void calculate_fractal_threaded(struct s_fractal *fractal,
 	}
 	tpool_runnwait();
 	memcpy(display_pixels, pixels->map,
-		pixels->height * pixels->width * sizeof(uint32_t));
+		   pixels->height * pixels->width * sizeof(uint32_t));
 }

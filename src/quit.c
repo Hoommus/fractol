@@ -12,8 +12,7 @@
 
 #include "fractol_common.h"
 
-noreturn void	quit(int status)
-{
+noreturn void quit(int status) {
 	TTF_Quit();
 	SDL_Quit();
 	exit(status);

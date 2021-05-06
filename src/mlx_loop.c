@@ -18,12 +18,12 @@
 #ifdef CONFIG_HAS_MLX
 
 struct s_mlx_crutch {
-    struct s_fractal *fractal;
-    struct s_rgba_map *pixels;
-    const struct s_options *restrict options;
-    void *mlx_ptr;
-    void *mlx_window;
-    void *mlx_image;
+	struct s_fractal *fractal;
+	struct s_rgba_map *pixels;
+	const struct s_options *restrict options;
+	void *mlx_ptr;
+	void *mlx_window;
+	void *mlx_image;
 };
 
 int put_image(void *param) {
@@ -139,10 +139,10 @@ int key_hooks(int scancode, void *param) {
 }
 
 noreturn void mlx_game_loop(void *restrict mlx_ptr,
-			    void *restrict mlx_window,
-			    struct s_fractal *restrict fractal,
-			    struct s_rgba_map *restrict pixels,
-			    const struct s_options *restrict options) {
+				void *restrict mlx_window,
+				struct s_fractal *restrict fractal,
+				struct s_rgba_map *restrict pixels,
+				const struct s_options *restrict options) {
 	struct s_mlx_crutch crutch;
 
 	crutch = (struct s_mlx_crutch) {fractal, pixels, options, mlx_ptr, mlx_window, 0};

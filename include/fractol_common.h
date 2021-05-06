@@ -38,8 +38,7 @@
 #define UI_FEEDBACK_MOUSE_DOWN   0x0010U
 #define UI_FEEDBACK_MOUSE_UP     0x0020U
 
-enum				e_options
-{
+enum e_options {
 	OPTION_HELP = 1,
 	OPTION_AVX = 1 << 1,
 	OPTION_OPENCL = 1 << 2,
@@ -52,34 +51,36 @@ enum				e_options
 	OPTION_VERBOSE = 1 << 14,
 };
 
-struct				s_options
-{
-	uint64_t		opts;
-	uint8_t			threads;
-	uint32_t		width;
-	uint32_t		height;
-	double			cx;
-	double			cy;
-	double			scale;
-	const char		*infile;
-	const char		*outfile;
+struct s_options {
+	uint64_t opts;
+	uint8_t threads;
+	uint32_t width;
+	uint32_t height;
+	double cx;
+	double cy;
+	double scale;
+	const char *infile;
+	const char *outfile;
 };
 
 int dispatch(const char **argv, const struct s_options *options);
+
 uint32_t
 poll_events(SDL_Window *window, struct s_fractal *fractal, struct s_rgba_map *pixels, const struct s_options *options);
-void				render_metadata(SDL_Window *window,
-								struct s_fractal *fractal,
-								struct s_rgba_map *pixels);
 
-noreturn void		sdl_game_loop(SDL_Window *window, struct s_fractal *fractal,
-								struct s_rgba_map *pixels,
-								const struct s_options *restrict options);
+void render_metadata(SDL_Window *window,
+					 struct s_fractal *fractal,
+					 struct s_rgba_map *pixels);
+
+noreturn void sdl_game_loop(SDL_Window *window, struct s_fractal *fractal,
+							struct s_rgba_map *pixels,
+							const struct s_options *restrict options);
+
 #ifdef CONFIG_HAS_MLX
 noreturn void		mlx_game_loop(void *mlx_ptr, void *mlx_window, struct s_fractal *fractal, struct s_rgba_map *pixels,
 							const struct s_options *options);
 #endif
 
-noreturn void		quit(int status);
+noreturn void quit(int status);
 
 #endif

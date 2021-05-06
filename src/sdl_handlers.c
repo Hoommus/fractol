@@ -12,11 +12,10 @@
 
 #include "fractol_common.h"
 
-static inline uint32_t	sdl_keydown(SDL_Scancode scancode,
-									struct s_fractal *restrict fractal,
-									const struct s_options *restrict options)
-{
-	uint32_t	feedback;
+static inline uint32_t sdl_keydown(SDL_Scancode scancode,
+								   struct s_fractal *restrict fractal,
+								   const struct s_options *restrict options) {
+	uint32_t feedback;
 
 	feedback = UI_FEEDBACK_REDRAW;
 	if (scancode == SDL_SCANCODE_LEFT)
@@ -34,17 +33,14 @@ static inline uint32_t	sdl_keydown(SDL_Scancode scancode,
 	else if (scancode == SDL_SCANCODE_R)
 		fractal->gradient_map->is_reverse = !fractal->gradient_map->is_reverse;
 	else if (scancode == SDL_SCANCODE_EQUALS || scancode == SDL_SCANCODE_KP_PLUS ||
-		scancode == SDL_SCANCODE_MINUS || scancode == SDL_SCANCODE_KP_MINUS)
-	{
+			 scancode == SDL_SCANCODE_MINUS || scancode == SDL_SCANCODE_KP_MINUS) {
 		if (scancode == SDL_SCANCODE_EQUALS || scancode == SDL_SCANCODE_KP_PLUS)
 			fractal->max_iterations += !!(fractal->max_iterations < UINT32_MAX);
 		if (scancode == SDL_SCANCODE_MINUS || scancode == SDL_SCANCODE_KP_MINUS)
 			fractal->max_iterations -= !!(fractal->max_iterations > 0);
 		fractal->gradient_map->max_iterations = fractal->max_iterations;
 		grad_cache_colors(fractal->gradient_map);
-	}
-	else if (scancode >= SDL_SCANCODE_1 && scancode <= SDL_SCANCODE_0)
-	{
+	} else if (scancode >= SDL_SCANCODE_1 && scancode <= SDL_SCANCODE_0) {
 		fractal->gradient_map = grad_from_table(scancode - 30);
 		fractal->gradient_map->max_iterations = fractal->max_iterations;
 		grad_cache_colors(fractal->gradient_map);
@@ -54,52 +50,42 @@ static inline uint32_t	sdl_keydown(SDL_Scancode scancode,
 
 uint32_t
 poll_events(SDL_Window *restrict window,
-	struct s_fractal *restrict fractal,
-	struct s_rgba_map *restrict pixels,
-	const struct s_options *restrict options)
-{
-	SDL_Event	e;
-	uint32_t	feedback;
+			struct s_fractal *restrict fractal,
+			struct s_rgba_map *restrict pixels,
+			const struct s_options *restrict options) {
+	SDL_Event e;
+	uint32_t feedback;
 
 	feedback = UI_FEEDBACK_NEUTRAL;
 	while (SDL_PollEvent(&e))
 		if (e.type == SDL_QUIT ||
 			(e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) ||
-			(e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_Q))
-		{
+			(e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_Q)) {
 			SDL_DestroyWindow(window);
 			exit(0);
-		}
-		else if (e.window.windowID != SDL_GetWindowID(window))
+		} else if (e.window.windowID != SDL_GetWindowID(window))
 			return (feedback);
 		else if (e.type == SDL_KEYDOWN)
 			feedback |= sdl_keydown(e.key.keysym.scancode, fractal, options);
 		else if (e.type == SDL_WINDOWEVENT &&
-				(e.window.event == SDL_WINDOWEVENT_RESIZED ||
-				e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED))
-		{
+				 (e.window.event == SDL_WINDOWEVENT_RESIZED ||
+				  e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)) {
 			SDL_GetWindowSize(window, &(pixels->width), &(pixels->height));
 			free(pixels->map);
 			free(pixels->map_metadata);
 			pixels->map = calloc(1, sizeof(uint32_t) * pixels->width * pixels->height);
 			pixels->map_metadata = calloc(1, sizeof(uint32_t) * pixels->width * pixels->height);
 			feedback |= UI_FEEDBACK_REDRAW;
-		}
-		else if (e.type == SDL_MOUSEMOTION)
-		{
+		} else if (e.type == SDL_MOUSEMOTION) {
 			fractal->input.mouse_cx = e.motion.x;
 			fractal->input.mouse_cy = e.motion.y;
 			fractal->input.mouse_x = e.motion.x;
 			fractal->input.mouse_y = e.motion.y;
 			feedback |= UI_FEEDBACK_REDRAW;
-		}
-		else if (e.type == SDL_MOUSEBUTTONDOWN)
-		{
+		} else if (e.type == SDL_MOUSEBUTTONDOWN) {
 			SDL_GetMouseState(&(fractal->input.mouse_cx), &(fractal->input.mouse_cy));
 			feedback |= UI_FEEDBACK_REDRAW;
-		}
-		else if (e.type == SDL_MOUSEWHEEL && !fractal->input.locked)
-		{
+		} else if (e.type == SDL_MOUSEWHEEL && !fractal->input.locked) {
 			fractal->input.scroll_depth += e.wheel.y * (5.0 + round(fractal->input.scroll_depth / 500.0));
 			feedback |= UI_FEEDBACK_REDRAW;
 		}
