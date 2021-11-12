@@ -103,7 +103,7 @@ noreturn void sdl_game_loop(SDL_Window *window,
 				calculate_fractal(fractal, pixels, window_pixels);
 			if (options->opts & OPTION_VERBOSE) {
 				gettimeofday(&end, NULL);
-				ft_printf("%s: %ld s %ld us\n",
+				printf("%s: %ld s %ld us\n",
 						  fractal->input.is_avx ? "avx" : "classic",
 						  end.tv_sec - start.tv_sec, ABS(end.tv_usec - start.tv_usec));
 			}

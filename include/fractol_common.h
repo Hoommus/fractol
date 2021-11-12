@@ -22,6 +22,7 @@
 # include <unistd.h>
 # include <stdbool.h>
 # include <stdint.h>
+# include <errno.h>
 # include <stdnoreturn.h>
 # include <stdarg.h>
 # include <signal.h>
@@ -46,9 +47,7 @@ enum e_options {
 	OPTION_NO_GUI = 1 << 9,
 	OPTION_NO_USER_INPUT = 1 << 10,
 	OPTION_THREADED = 1 << 11,
-	OPTION_SDL = 1 << 12,
-	OPTION_MLX = 1 << 13,
-	OPTION_VERBOSE = 1 << 14,
+	OPTION_VERBOSE = 1 << 12,
 };
 
 struct s_options {

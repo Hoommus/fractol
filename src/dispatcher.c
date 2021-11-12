@@ -65,20 +65,6 @@ static const struct s_command g_dispatchable[] =
 				}
 		};
 
-static inline struct s_rgba_map *init_common(struct s_fractal *fractal) {
-	struct s_rgba_map *pixels;
-
-	pixels = calloc(1, sizeof(struct s_rgba_map));
-	pixels->height = 1200;
-	pixels->width = 1200;
-	pixels->map = calloc(1, sizeof(uint32_t) * pixels->width * pixels->height + 4);
-	pixels->map_metadata = calloc(1, sizeof(struct s_pixel_meta) * pixels->width * pixels->height + 4);
-	grad_table_init();
-	fractal->gradient_map = grad_from_table(0);
-	grad_cache_colors(fractal->gradient_map);
-	return (pixels);
-}
-
 static int forknrun_sdl(const struct s_command *cmd, const struct s_options *options) {
 	struct s_fractal fractal;
 	struct s_rgba_map *pixels;
@@ -88,8 +74,17 @@ static int forknrun_sdl(const struct s_command *cmd, const struct s_options *opt
 		exit(ft_dprintf(2, "hello from fukken SDL: %s\n", SDL_GetError()));
 	signal(SIGINT, &quit);
 	TTF_Init();
+	pixels = calloc(1, sizeof(struct s_rgba_map));
+	pixels->height = 1000;
+	pixels->width = 1200;
+	pixels->map = calloc(1, sizeof(uint32_t) * pixels->width * pixels->height + 4);
+	pixels->map_metadata = calloc(1, sizeof(struct s_pixel_meta) * pixels->width * pixels->height + 4);
+
+
+	grad_table_init();
 	fractal = cmd->temp_late;
-	pixels = init_common(&(fractal));
+	fractal.gradient_map = grad_from_table(0);
+	grad_cache_colors(fractal.gradient_map);
 	window = SDL_CreateWindow("Good ol' Fract 'ol",
 							  SDL_WINDOWPOS_UNDEFINED,
 							  SDL_WINDOWPOS_UNDEFINED,
@@ -104,25 +99,18 @@ static int forknrun_sdl(const struct s_command *cmd, const struct s_options *opt
 	return (0);
 }
 
-int forknrun_mlx(const struct s_command *cmd,
-				 const struct s_options *restrict options) {
-	return (void *) cmd == (void *) options;
-}
-
 int dispatch(const char **argv, const struct s_options *options) {
 	int i;
 	int status;
 
 	status = -1;
-	i = -1;
 	if (argv[0] != NULL) {
-		while (g_dispatchable[++i].name) {
-			if (ft_strcmp(argv[0], g_dispatchable[i].name) == 0) {
-				if (options->opts & OPTION_SDL)
+		i = 0;
+		while (g_dispatchable[i].name) {
+			if (!ft_strcmp(argv[0], g_dispatchable[i].name)) {
 					status = forknrun_sdl(g_dispatchable + i, options);
-				else
-					status = forknrun_mlx(g_dispatchable + i, options);
 			}
+			i++;
 		}
 	} else
 		status = -2;
@@ -130,9 +118,11 @@ int dispatch(const char **argv, const struct s_options *options) {
 		if (status == -1)
 			ft_dprintf(2, "fractol: no fractal named `%s'\n", argv[0]);
 		ft_dprintf(2, "Please, specify one of the following fractals:\n");
-		i = -1;
-		while (g_dispatchable[++i].name)
+		i = 0;
+		while (g_dispatchable[i].name) {
 			ft_dprintf(2, "\t%s\n", g_dispatchable[i].name);
+			i++;
+		}
 	}
 	return (status);
 }

@@ -13,8 +13,8 @@
 #include <fractol_tpool.h>
 #include "fractol_common.h"
 
-void precalculate_factors(struct s_fractal *restrict fractal,
-						  struct s_rgba_map *restrict pixels) {
+static inline void precalculate_factors(struct s_fractal *restrict fractal,
+					struct s_rgba_map *restrict pixels) {
 	struct s_input *input;
 
 	input = &fractal->input;

@@ -13,6 +13,7 @@
 #include "fractol_tpool.h"
 #include "fractol_common.h"
 #include <getopt.h>
+#include <errno.h>
 
 /*
 ** TODO: add flags:
@@ -72,13 +73,11 @@ const static struct option g_opts[] = {
 		{"width",           required_argument, NULL, 260},
 		{"height",          required_argument, NULL, 261},
 		{"disable-control", no_argument,       NULL, OPTION_NO_USER_INPUT},
-		{"sdl",             no_argument,       NULL, OPTION_SDL},
-		{"mlx",             no_argument,       NULL, OPTION_MLX},
-		{NULL,              no_argument,       NULL, 0},
+		{0},
 };
 
 static int help(void) {
-	ft_printf(FRACTOL_USAGE_STR
+	dprintf(2, FRACTOL_USAGE_STR
 			  "    -h, --help  - print the following message and exit\n"
 			  "    -t [number] - compute fractal on CPU in parallel with a [number] of threads.\n"
 			  "    -t=[number]\n"
@@ -86,8 +85,6 @@ static int help(void) {
 			  "    --avx       - use AVX and AVX2 instructions, if possible. Emits error\n"
 			  "                  message, if it isn't possible and runs in a classic way.\n"
 			  "                  Defaults to `true'.\n"
-			  "    --sdl       - use SDL2 instead of MLX\n"
-			  "    --mlx       - use MLX instead of SDL2. Higher precedence over --sdl.\n"
 			  "    --verbose   - print to controlling terminal additional info: render speeds,\n"
 			  "                  warnings etc. Might have a minor performance impact\n");
 	return (0);
@@ -100,43 +97,49 @@ static void cleanup(void) {
 	(void) g_opts;
 }
 
-int parse_flags(int argc, const char **argv, struct s_options *opts) {
-	int i;
+int parse_flags(int argc, char **argv, struct s_options *opts) {
+	int longindex;
+	int arg = 0;
 
-	i = -1;
-	while (++i < argc && argv[i][0] == '-')
-		if (!ft_strncmp(argv[i], "-t", 2) || !ft_strncmp(argv[i], "-j", 2)) {
-			opts->threads = ft_atoi(argv[i][2] == '=' ? argv[i] + 3 : argv[++i]);
+	while (true) {
+		arg = getopt_long(argc, argv, "t:hV", g_opts, &longindex);
+		switch (arg) {
+		case 't':
 			opts->opts |= OPTION_THREADED;
-			if (opts->threads <= 0 || opts->threads > 64) {
-				opts->threads = opts->threads <= 0 ? 4 : 64;
-				ft_dprintf(2, "warning: invalid threads quantity: "
-							  "must be in range between 1 and 64.\n"
-							  "Running at %d threads\n", opts->threads);
-			}
-		} else if (ft_strequ(argv[i], "--mlx"))
-			opts->opts |= OPTION_MLX;
-		else if (ft_strequ(argv[i], "--sdl"))
-			opts->opts |= OPTION_SDL;
-		else if (ft_strequ(argv[i], "-h") || ft_strequ(argv[i], "--help"))
-			opts->opts |= OPTION_HELP;
-		else if (ft_strequ(argv[i], "--verbose"))
-			opts->opts |= OPTION_VERBOSE;
-	return (i);
+			if (optarg[0] == '=')
+				optarg++;
+			opts->threads = strtol(optarg, NULL, 0) < 64 ? : 64 ;
+			break;
+		case 'h':
+			return help();
+		case -1:
+			/* end of options */
+			return optind;
+		case '?':
+			fprintf(stderr, "%s: %s\n", strerror(EINVAL), optarg);
+			help();
+			return -EINVAL;
+		default:
+			fprintf(stderr, "What the hell?\n");
+			break;
+		}
+	}
+	return optind;
 }
 
-int main(int argc, const char **argv) {
-	struct s_options options;
+int main(int argc, char **argv) {
+	struct s_options options = {0};
+	int ret;
 
-	ft_bzero(&options, sizeof(struct s_options));
 	if (argc == 1)
-		return ((ft_dprintf(2, FRACTOL_USAGE_STR) & 0) | 1);
-	argv += parse_flags(argc - 1, argv + 1, &options) + 1;
-	if (options.opts & OPTION_HELP)
-		return (help());
+		return help();
+	ret = parse_flags(argc, argv, &options);
+	if (ret < 0)
+		return -ret;
+	argv += ret;
 	if (options.opts & OPTION_THREADED)
 		tpool_init(options.threads);
 	atexit(&cleanup);
-	dispatch(argv, &options);
+	dispatch((const char **)argv, &options);
 	return (0);
 }

@@ -62,6 +62,7 @@ poll_events(SDL_Window *restrict window,
 			(e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_ESCAPE) ||
 			(e.type == SDL_KEYDOWN && e.key.keysym.scancode == SDL_SCANCODE_Q)) {
 			SDL_DestroyWindow(window);
+			SDL_Quit();
 			exit(0);
 		} else if (e.window.windowID != SDL_GetWindowID(window))
 			return (feedback);
